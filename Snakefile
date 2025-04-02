@@ -51,7 +51,6 @@ rule snp_qc:
       --hwe 1e-6 midp \
       --make-pgen \
       --out {params.results} > {log} 2>&1
-   
         """
 
 rule calculate_pgs:
