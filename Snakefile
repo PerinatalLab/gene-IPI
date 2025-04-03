@@ -1,3 +1,7 @@
+import pandas as pd
+import numpy as np
+import json
+
 rule all:
     input:
         "results/phenotype/filtered_pregnancies.csv",
@@ -55,19 +59,75 @@ rule snp_qc:
 
 rule calculate_pgs:
     input:
-        pfile = "results/gwas/moba_common_qc_ipi",
-        weights = "variant_weights.txt"
+        weights = "variant_weights.txt",
+        pfile = expand("results/gwas/moba_common_qc_ipi.{ext}", ext= ['pgen', 'pvar', 'psam'])
     output:
         sscore = "results/pgs/ipi_pgs.sscore",
         log = "results/pgs/ipi_pgs.log"
     params:
+        pfile = "results/gwas/moba_common_qc_ipi",
         out = "results/pgs/ipi_pgs"
     shell:
         """
         mkdir -p results/pgs
         plink2 \
-          --pfile {input.pfile} \
+          --pfile {params.pfile} \
           --score {input.weights} 1 2 3 cols=scoresums \
           --nonfounders \
           --out {params.out} > {output.log} 2>&1
         """
+
+def selectUnrelated(input_kin, df, x):
+        kin= pd.read_csv(input_kin, header= 0, sep= '\t')
+        kin= kin.loc[kin.Kinship > 0.125, :]
+        kin= kin.loc[kin.ID1.isin(x.values), :]
+        kin= kin.loc[kin.ID2.isin(x.values), :]
+        kin= kin.loc[:, ['ID1','ID2','Kinship']]
+        kin_temp= kin.copy()
+        kin_temp.columns= ['ID2', 'ID1', 'Kinship']
+        kin_temp= pd.concat([kin_temp, kin], ignore_index=True)
+        kin_temp['n']= kin_temp.groupby('ID1')['ID1'].transform('count')
+        kin_temp['nn']= kin_temp.groupby('ID2')['ID2'].transform('count')
+        kin_temp.sort_values(by=['n', 'nn'], inplace= True)
+        to_keep= list()
+        for i in range(0, len(kin_temp.index)):
+                if kin_temp.iloc[i, 0] in kin_temp.iloc[0:i, 1].values:
+                        kin_temp.iloc[i, 1]= "X"
+                else:
+                        to_keep.append(kin_temp.iloc[i, 0])
+        to_remove= [i for i in kin_temp.ID1 if i not in to_keep]
+        to_remove= list(set(to_remove))
+        remove= pd.DataFrame({'FID': to_remove})
+        remove['IID']= remove.FID
+        return remove
+
+rule keep_CEU:
+    ''
+
+
+rule remove_related:
+        'Concat pheno files, and add PCA.'
+        input:
+                'OUTPUT FROM KEEP_CEU RULE',
+                '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0',
+                '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs',
+		'/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches',
+                'resources/batches.json'
+        output:
+                'results/final_phenotype/IPI_pgs_covariates.txt'
+        run:
+                d= pd.read_csv(input[0], header= 0, sep= '\t')
+                remove= selectUnrelated(input[1], d, d.IID)
+                d= d.loc[~d.IID.isin(remove.IID.values), : ]
+                pcs= pd.read_csv(input[2], header= 0, sep= '\t')
+		pcs= pcs[['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6']]
+                d= pd.merge(d, pcs, right_on= 'IID', left_on= 'SENTRIX_ID')
+		batches= pd.read_csv(input[3], sep= '\t', header= 0)
+		batches.columns= ['IID', 'batch']
+		d= pd.merge(d, batches, left_on= 'SENTRIX_ID', right_on= 'IID')
+                with open(input[4], 'r') as fp:
+                        batches_dict= json.load(fp)
+                d['batch'].replace(batches_dict, inplace= True)
+                d['batch']= d['batch'].str.replace(' ', '_')
+                d.to_csv(output[0], sep= '\t', header= True, index= False)
+
