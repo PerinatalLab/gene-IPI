@@ -8,7 +8,8 @@ rule all:
         "results/gwas/moba_common_qc_ipi.pgen",
         "results/gwas/moba_common_qc_ipi.pvar",
         "results/gwas/moba_common_qc_ipi.psam",
-        "results/pgs/ipi_pgs.sscore"
+        "results/pgs/ipi_pgs.sscore",
+        "results/phenotype/pheno_pgs_unique.csv"
 
 rule cleaned_data:
     input:
@@ -102,8 +103,14 @@ def selectUnrelated(input_kin, df, x):
         return remove
 
 rule keep_CEU:
-    ''
-
+    input:
+        pheno = "results/phenotype/filtered_pregnancies.csv",
+        pgs = "results/pgs/ipi_pgs.sscore",
+        ceu_ids = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03_ceu_core_ids"
+    output:
+        "results/phenotype/pheno_pgs_unique.csv"
+    script:
+        "scripts/.R"
 
 rule remove_related:
         'Concat pheno files, and add PCA.'
