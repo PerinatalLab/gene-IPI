@@ -1,4 +1,5 @@
-# merging pgs and phenotype dataset, keed just one ID/mother
+# merging pgs and phenotype dataset, one ID/mother
+
 library(data.table)
 library(ggplot2)
 library(dplyr)
@@ -28,7 +29,7 @@ pheno_pgs_unique <- pheno_pgs %>%
 fwrite(pheno_pgs_unique, "results/phenotype/pheno_pgs_unique.csv")
 
 
-# check
+#check 
 #head(pheno_pgs_unique)
 
 # check duplicates
