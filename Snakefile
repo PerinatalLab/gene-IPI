@@ -110,7 +110,7 @@ rule keep_CEU:
     output:
         "results/phenotype/pheno_pgs_unique.csv"
     script:
-        "scripts/.R"
+        "scripts/qc_ipi_pgs.R"
 
 rule remove_related:
         'Concat pheno files, and add PCA.'
