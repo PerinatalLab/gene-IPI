@@ -124,9 +124,9 @@ rule remove_related:
         output:
                 'results/final_phenotype/IPI_pgs_covariates.txt'
         run:
-                d= pd.read_csv(input[0], header= 0, sep= '\t')
-                remove= selectUnrelated(input[1], d, d.IID)
-                d= d.loc[~d.IID.isin(remove.IID.values), : ]
+                d= pd.read_csv(input[0], header= 0, sep= ',')
+                remove= selectUnrelated(input[1], d, d.SENTRIX_ID)
+                d= d.loc[~d.SENTRIX_ID.isin(remove.IID.values), : ]
                 pcs= pd.read_csv(input[2], header= 0, sep= '\t')
 		pcs= pcs[['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6']]
                 d= pd.merge(d, pcs, right_on= 'IID', left_on= 'SENTRIX_ID')
