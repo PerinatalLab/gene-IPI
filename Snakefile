@@ -9,7 +9,8 @@ rule all:
         "results/gwas/moba_common_qc_ipi.pvar",
         "results/gwas/moba_common_qc_ipi.psam",
         "results/pgs/ipi_pgs.sscore",
-        "results/phenotype/pheno_pgs_unique.csv"
+        "results/phenotype/pheno_pgs_unique.csv",
+        "results/final_phenotype/IPI_pgs_covariates.txt"
 
 rule cleaned_data:
     input:
