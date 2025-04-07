@@ -115,7 +115,7 @@ rule keep_CEU:
 rule remove_related:
         'Concat pheno files, and add PCA.'
         input:
-                'OUTPUT FROM KEEP_CEU RULE',
+                'results/phenotype/pheno_pgs_unique.csv',
                 '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0',
                 '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs',
 		'/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches',
