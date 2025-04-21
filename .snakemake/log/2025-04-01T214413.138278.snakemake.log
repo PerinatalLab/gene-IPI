@@ -1,5 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule all in file /mnt/scratch/agnes/gene-IPI/Snakefile, line 1:
-Missing input files for rule all:
-    affected files:
-        results/pgs_IPI_interaction_output.txt
