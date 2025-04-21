@@ -1,0 +1,32 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job               count
+--------------  -------
+remove_related        1
+total                 1
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Apr  7 12:14:16 2025]
+localrule remove_related:
+    input: results/phenotype/pheno_pgs_unique.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches, resources/batches.json
+    output: results/final_phenotype/IPI_pgs_covariates.txt
+    jobid: 0
+    reason: Missing output files: results/final_phenotype/IPI_pgs_covariates.txt
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Mon Apr  7 12:14:20 2025]
+Error in rule remove_related:
+    jobid: 0
+    input: results/phenotype/pheno_pgs_unique.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches, resources/batches.json
+    output: results/final_phenotype/IPI_pgs_covariates.txt
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-04-07T121414.557979.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

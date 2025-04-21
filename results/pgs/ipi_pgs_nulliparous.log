@@ -1,0 +1,24 @@
+PLINK v2.00a3 SSE4.2 (18 Feb 2022)
+Options in effect:
+  --nonfounders
+  --out results/pgs/ipi_pgs_nulliparous
+  --pfile results/gwas/moba_common_qc_ipi_nulliparous
+  --score variant_weights.txt 1 2 3 cols=scoresums
+
+Hostname: bergomo-home
+Working directory: /mnt/scratch/agnes/gene-IPI
+Start time: Thu Apr 17 12:21:17 2025
+
+Random number seed: 1744885277
+128805 MiB RAM detected; reserving 64402 MiB for main workspace.
+Using up to 32 threads (change this with --threads).
+36771 samples (36760 females, 0 males, 11 ambiguous; 0 founders) loaded from
+results/gwas/moba_common_qc_ipi_nulliparous.psam.
+24 variants loaded from results/gwas/moba_common_qc_ipi_nulliparous.pvar.
+Note: No phenotype data present.
+Calculating allele frequencies... done.
+--score: 24 variants processed.
+--score: Results written to results/pdone.
+--score: 24 variants processed.
+--score: Results written to results/pgs/ipi_pgs_nulliparous.sscore .
+End time: Thu Apr 17 12:21:17 2025

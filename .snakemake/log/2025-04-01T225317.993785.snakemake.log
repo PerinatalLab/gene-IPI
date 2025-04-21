@@ -1,0 +1,36 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                count
+---------------  -------
+all                    1
+pgs_association        1
+total                  2
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Tue Apr  1 22:53:18 2025]
+localrule pgs_association:
+    input: results/phenotype/filtered_pregnancies.csv, results/pgs/ipi_pgs.sscore
+    output: results/pgs/PGS_IPI_interaction_output.txt
+    jobid: 3
+    reason: Missing output files: results/pgs/PGS_IPI_interaction_output.txt
+    resources: tmpdir=/mnt/scratch/tmp
+
+RuleException:
+CalledProcessError in file /mnt/scratch/agnes/gene-IPI/Snakefile, line 80:
+Command 'set -euo pipefail;  Rscript --vanilla /mnt/scratch/agnes/gene-IPI/.snakemake/scripts/tmp2hx17faz.PGS_association.R' returned non-zero exit status 1.
+[Tue Apr  1 22:53:20 2025]
+Error in rule pgs_association:
+    jobid: 3
+    input: results/phenotype/filtered_pregnancies.csv, results/pgs/ipi_pgs.sscore
+    output: results/pgs/PGS_IPI_interaction_output.txt
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-04-01T225317.993785.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

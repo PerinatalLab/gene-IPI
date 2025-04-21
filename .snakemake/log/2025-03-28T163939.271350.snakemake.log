@@ -1,0 +1,6 @@
+Building DAG of jobs...
+MissingInputException in rule snp_qc in file /mnt/scratch/agnes/gene-IPI/Snakefile, line 24:
+Missing input files for rule snp_qc:
+    output: results/gwas/moba_common_qc_ipi.pgen, results/gwas/moba_common_qc_ipi.pvar, results/gwas/moba_common_qc_ipi.psam
+    affected files:
+        /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common

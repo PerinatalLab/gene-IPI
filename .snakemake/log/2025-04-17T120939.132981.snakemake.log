@@ -1,0 +1,60 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job               count
+--------------  -------
+all                   1
+calculate_pgs         2
+cleaned_data          2
+keep_CEU              2
+remove_related        2
+snp_qc                2
+total                11
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:09:39 2025]
+localrule cleaned_data:
+    input: /mnt/scratch/agnes/PDB1724_MFR_541_v12.csv, /mnt/scratch/agnes/parental_ID_to_PREG_ID.csv, /mnt/work/p1724/v12/linkage_Mother_PDB1724.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam
+    output: results/phenotype/filtered_pregnancies_multiparous.csv, results/phenotype/IDs_extract_multiparous.txt
+    jobid: 2
+    reason: Missing output files: results/phenotype/filtered_pregnancies_multiparous.csv, results/phenotype/IDs_extract_multiparous.txt
+    wildcards: parity=multiparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:10:03 2025]
+Finished job 2.
+1 of 11 steps (9%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:10:03 2025]
+localrule snp_qc:
+    input: /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pvar, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen, results/phenotype/IDs_extract_multiparous.txt, SNP_to_extract.txt
+    output: results/gwas/moba_common_qc_ipi_multiparous.pgen, results/gwas/moba_common_qc_ipi_multiparous.pvar, results/gwas/moba_common_qc_ipi_multiparous.psam
+    log: results/gwas/moba_common_qc_ipi_multiparous.log
+    jobid: 6
+    reason: Missing output files: results/gwas/moba_common_qc_ipi_multiparous.pgen, results/gwas/moba_common_qc_ipi_multiparous.pvar, results/gwas/moba_common_qc_ipi_multiparous.psam; Input files updated by another job: results/phenotype/IDs_extract_multiparous.txt
+    wildcards: parity=multiparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:11:20 2025]
+Error in rule snp_qc:
+    jobid: 6
+    input: /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pvar, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen, results/phenotype/IDs_extract_multiparous.txt, SNP_to_extract.txt
+    output: results/gwas/moba_common_qc_ipi_multiparous.pgen, results/gwas/moba_common_qc_ipi_multiparous.pvar, results/gwas/moba_common_qc_ipi_multiparous.psam
+    log: results/gwas/moba_common_qc_ipi_multiparous.log (check log file(s) for error details)
+    shell:
+        
+    plink2       --pfile /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common       --keep results/phenotype/IDs_extract_multiparous.txt       --extract SNP_to_extract.txt       --maf 0.01       --geno 0.01       --mind 0.01       --hwe 1e-6 midp       --make-pgen       --out results/gwas/moba_common_qc_ipi_multiparous > results/gwas/moba_common_qc_ipi_multiparous.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-04-17T120939.132981.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

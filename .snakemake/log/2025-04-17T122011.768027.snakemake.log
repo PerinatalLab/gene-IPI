@@ -1,0 +1,181 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job               count
+--------------  -------
+all                   1
+calculate_pgs         2
+cleaned_data          2
+keep_CEU              2
+remove_related        2
+snp_qc                2
+total                11
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:20:11 2025]
+localrule cleaned_data:
+    input: /mnt/scratch/agnes/PDB1724_MFR_541_v12.csv, /mnt/scratch/agnes/parental_ID_to_PREG_ID.csv, /mnt/work/p1724/v12/linkage_Mother_PDB1724.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam
+    output: results/phenotype/filtered_pregnancies_multiparous.csv, results/phenotype/IDs_extract_multiparous.txt
+    jobid: 2
+    reason: Missing output files: results/phenotype/IDs_extract_multiparous.txt, results/phenotype/filtered_pregnancies_multiparous.csv
+    wildcards: parity=multiparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:20:35 2025]
+Finished job 2.
+1 of 11 steps (9%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:20:35 2025]
+localrule snp_qc:
+    input: /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pvar, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen, results/phenotype/IDs_extract_multiparous.txt, SNP_to_extract.txt
+    output: results/gwas/moba_common_qc_ipi_multiparous.pgen, results/gwas/moba_common_qc_ipi_multiparous.pvar, results/gwas/moba_common_qc_ipi_multiparous.psam
+    log: results/gwas/moba_common_qc_ipi_multiparous.log
+    jobid: 6
+    reason: Missing output files: results/gwas/moba_common_qc_ipi_multiparous.pvar, results/gwas/moba_common_qc_ipi_multiparous.pgen, results/gwas/moba_common_qc_ipi_multiparous.psam; Input files updated by another job: results/phenotype/IDs_extract_multiparous.txt
+    wildcards: parity=multiparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:20:44 2025]
+Finished job 6.
+2 of 11 steps (18%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:20:44 2025]
+localrule calculate_pgs:
+    input: variant_weights.txt, results/gwas/moba_common_qc_ipi_multiparous.pgen, results/gwas/moba_common_qc_ipi_multiparous.pvar, results/gwas/moba_common_qc_ipi_multiparous.psam
+    output: results/pgs/ipi_pgs_multiparous.sscore, results/pgs/ipi_pgs_multiparous.log
+    jobid: 5
+    reason: Missing output files: results/pgs/ipi_pgs_multiparous.sscore; Input files updated by another job: results/gwas/moba_common_qc_ipi_multiparous.pvar, results/gwas/moba_common_qc_ipi_multiparous.pgen, results/gwas/moba_common_qc_ipi_multiparous.psam
+    wildcards: parity=multiparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:20:44 2025]
+Finished job 5.
+3 of 11 steps (27%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:20:44 2025]
+localrule keep_CEU:
+    input: results/phenotype/filtered_pregnancies_multiparous.csv, results/pgs/ipi_pgs_multiparous.sscore, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03_ceu_core_ids
+    output: results/phenotype/pheno_pgs_unique_multiparous.csv
+    jobid: 8
+    reason: Missing output files: results/phenotype/pheno_pgs_unique_multiparous.csv; Input files updated by another job: results/pgs/ipi_pgs_multiparous.sscore, results/phenotype/filtered_pregnancies_multiparous.csv
+    wildcards: parity=multiparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:20:50 2025]
+Finished job 8.
+4 of 11 steps (36%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:20:50 2025]
+localrule remove_related:
+    input: results/phenotype/pheno_pgs_unique_multiparous.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches, resources/batches.json
+    output: results/final_phenotype/IPI_pgs_covariates_multiparous.txt
+    jobid: 10
+    reason: Missing output files: results/final_phenotype/IPI_pgs_covariates_multiparous.txt; Input files updated by another job: results/phenotype/pheno_pgs_unique_multiparous.csv
+    wildcards: parity=multiparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:21:06 2025]
+Finished job 10.
+5 of 11 steps (45%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:21:06 2025]
+localrule cleaned_data:
+    input: /mnt/scratch/agnes/PDB1724_MFR_541_v12.csv, /mnt/scratch/agnes/parental_ID_to_PREG_ID.csv, /mnt/work/p1724/v12/linkage_Mother_PDB1724.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam
+    output: results/phenotype/filtered_pregnancies_nulliparous.csv, results/phenotype/IDs_extract_nulliparous.txt
+    jobid: 1
+    reason: Missing output files: results/phenotype/filtered_pregnancies_nulliparous.csv, results/phenotype/IDs_extract_nulliparous.txt
+    wildcards: parity=nulliparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:21:14 2025]
+Finished job 1.
+6 of 11 steps (55%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:21:14 2025]
+localrule snp_qc:
+    input: /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pvar, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen, results/phenotype/IDs_extract_nulliparous.txt, SNP_to_extract.txt
+    output: results/gwas/moba_common_qc_ipi_nulliparous.pgen, results/gwas/moba_common_qc_ipi_nulliparous.pvar, results/gwas/moba_common_qc_ipi_nulliparous.psam
+    log: results/gwas/moba_common_qc_ipi_nulliparous.log
+    jobid: 4
+    reason: Missing output files: results/gwas/moba_common_qc_ipi_nulliparous.psam, results/gwas/moba_common_qc_ipi_nulliparous.pvar, results/gwas/moba_common_qc_ipi_nulliparous.pgen; Input files updated by another job: results/phenotype/IDs_extract_nulliparous.txt
+    wildcards: parity=nulliparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:21:17 2025]
+Finished job 4.
+7 of 11 steps (64%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:21:17 2025]
+localrule calculate_pgs:
+    input: variant_weights.txt, results/gwas/moba_common_qc_ipi_nulliparous.pgen, results/gwas/moba_common_qc_ipi_nulliparous.pvar, results/gwas/moba_common_qc_ipi_nulliparous.psam
+    output: results/pgs/ipi_pgs_nulliparous.sscore, results/pgs/ipi_pgs_nulliparous.log
+    jobid: 3
+    reason: Missing output files: results/pgs/ipi_pgs_nulliparous.sscore; Input files updated by another job: results/gwas/moba_common_qc_ipi_nulliparous.psam, results/gwas/moba_common_qc_ipi_nulliparous.pvar, results/gwas/moba_common_qc_ipi_nulliparous.pgen
+    wildcards: parity=nulliparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:21:17 2025]
+Finished job 3.
+8 of 11 steps (73%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:21:17 2025]
+localrule keep_CEU:
+    input: results/phenotype/filtered_pregnancies_nulliparous.csv, results/pgs/ipi_pgs_nulliparous.sscore, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03_ceu_core_ids
+    output: results/phenotype/pheno_pgs_unique_nulliparous.csv
+    jobid: 7
+    reason: Missing output files: results/phenotype/pheno_pgs_unique_nulliparous.csv; Input files updated by another job: results/phenotype/filtered_pregnancies_nulliparous.csv, results/pgs/ipi_pgs_nulliparous.sscore
+    wildcards: parity=nulliparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:21:20 2025]
+Finished job 7.
+9 of 11 steps (82%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:21:20 2025]
+localrule remove_related:
+    input: results/phenotype/pheno_pgs_unique_nulliparous.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches, resources/batches.json
+    output: results/final_phenotype/IPI_pgs_covariates_nulliparous.txt
+    jobid: 9
+    reason: Missing output files: results/final_phenotype/IPI_pgs_covariates_nulliparous.txt; Input files updated by another job: results/phenotype/pheno_pgs_unique_nulliparous.csv
+    wildcards: parity=nulliparous
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:21:24 2025]
+Finished job 9.
+10 of 11 steps (91%) done
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Apr 17 12:21:24 2025]
+localrule all:
+    input: results/phenotype/filtered_pregnancies_nulliparous.csv, results/phenotype/filtered_pregnancies_multiparous.csv, results/gwas/moba_common_qc_ipi.pgen, results/gwas/moba_common_qc_ipi.pvar, results/gwas/moba_common_qc_ipi.psam, results/pgs/ipi_pgs_nulliparous.sscore, results/pgs/ipi_pgs_multiparous.sscore, results/phenotype/pheno_pgs_unique_nulliparous.csv, results/phenotype/pheno_pgs_unique_multiparous.csv, results/final_phenotype/IPI_pgs_covariates_nulliparous.txt, results/final_phenotype/IPI_pgs_covariates_multiparous.txt
+    jobid: 0
+    reason: Input files updated by another job: results/final_phenotype/IPI_pgs_covariates_multiparous.txt, results/phenotype/filtered_pregnancies_multiparous.csv, results/pgs/ipi_pgs_nulliparous.sscore, results/phenotype/pheno_pgs_unique_multiparous.csv, results/final_phenotype/IPI_pgs_covariates_nulliparous.txt, results/phenotype/pheno_pgs_unique_nulliparous.csv, results/pgs/ipi_pgs_multiparous.sscore, results/phenotype/filtered_pregnancies_nulliparous.csv
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Thu Apr 17 12:21:24 2025]
+Finished job 0.
+11 of 11 steps (100%) done
+Complete log: .snakemake/log/2025-04-17T122011.768027.snakemake.log

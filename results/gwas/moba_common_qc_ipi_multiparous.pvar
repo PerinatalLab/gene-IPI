@@ -1,0 +1,60 @@
+##FILTER=<ID=PASS,Description="All filters passed">
+##filedate=20240814
+##INFO=<ID=AF,Number=A,Type=Float,Description="Estimated ALT Allele Frequencies">
+##INFO=<ID=DR2,Number=A,Type=Float,Description="Dosage R-Squared: estimated squared correlation between estimated REF dose [P(RA) + 2*P(RR)] and true REF dose">
+##INFO=<ID=IMP,Number=0,Type=Flag,Description="Imputed marker">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record  (for use with symbolic alleles)">
+##contig=<ID=1>
+##bcftools_viewVersion=1.20+htslib-1.20
+##bcftools_viewCommand=view -i INFO/DR2>=0.3 -o /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp001/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.07.01/mod6-imputation/snp001/all_samples/mod6_impute.chr1.imputed.vcf.gz; Date=Thu Aug 29 15:33:57 2024
+##bcftools_mergeVersion=1.20+htslib-1.20
+##bcftools_mergeCommand=merge -o /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/all_samples/mod7_merge_batches_chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp001/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp002/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp003/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp007/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp008/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp009/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp010/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp011/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp012/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp014/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp015a/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp015b/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp016a/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp016b/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp017a/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp017b/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp017c/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp017d/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp017e/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp017f/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp018a/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp018b/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp018c/all_samples/mod7_filter.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/snp018de/all_samples/mod7_filter.chr1.bcf; Date=Thu Aug 29 23:59:03 2024
+##bcftools_normVersion=1.20+htslib-1.20
+##bcftools_normCommand=norm -m + -o /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/all_samples/mod7_norm.chr1.bcf /mnt/work/qc_genotypes/pipeOut_dev/2024.08.29/mod7-post-imputation/all_samples/mod7_merge_batches_chr1.bcf; Date=Fri Aug 30 15:30:19 2024
+##contig=<ID=2>
+##contig=<ID=3>
+##contig=<ID=4>
+##contig=<ID=5>
+##contig=<ID=6>
+##contig=<ID=7>
+##contig=<ID=8>
+##contig=<ID=9>
+##contig=<ID=10>
+##contig=<ID=11>
+##contig=<ID=12>
+##contig=<ID=13>
+##contig=<ID=14>
+##contig=<ID=15>
+##contig=<ID=16>
+##contig=<ID=17>
+##contig=<ID=18>
+##contig=<ID=19>
+##contig=<ID=20>
+##contig=<ID=21>
+##contig=<ID=22>
+##contig=<ID=X>
+#CHROM	POS	ID	REF	ALT	FILTER	INFO
+1	22462111	rs12037376	G	A	PASS	IMP;DR2=1;AF=0.1727
+1	42270779	rs625036	G	A	PASS	IMP;DR2=0.99;AF=0.3584
+1	50959262	rs72898946	A	C	PASS	IMP;DR2=1;AF=0.1101
+2	74235926	rs34555419	A	G	PASS	IMP;DR2=0.96;AF=0.0552
+3	14293832	rs9823520	G	A	PASS	IMP;DR2=0.99;AF=0.214
+3	123112292	rs28654158	T	C	PASS	IMP;DR2=0.97;AF=0.3723
+3	128122396	rs2659685	G	A	PASS	IMP;DR2=1;AF=0.2486
+3	139004333	rs62270785	A	G	PASS	IMP;DR2=0.98;AF=0.0152
+3	141147414	rs7650602	T	C	PASS	IMP;DR2=1;AF=0.4753
+3	155862524	rs4359773	G	A	PASS	IMP;DR2=1;AF=0.5645
+3	156697097	rs6780427	G	A	PASS	IMP;DR2=0.99;AF=0.6007
+4	55895282	rs113828443	C	T	PASS	IMP;DR2=0.94;AF=0.0791
+4	174733296	rs6831441	T	G	PASS	IMP;DR2=0.96;AF=0.2999
+5	157895049	rs2963463	T	C	PASS	IMP;DR2=1;AF=0.7241
+5	158058432	rs6879092	T	G	PASS	IMP;DR2=0.98;AF=0.4998
+6	32595083	rs3129768	G	T	PASS	IMP;DR2=1;AF=0.7954
+8	75315146	rs6472846	G	C	PASS	IMP;DR2=0.99;AF=0.407
+8	124603784	rs143530128	G	A	PASS	IMP;DR2=0.92;AF=0.0194
+9	116935764	rs7023208	C	G	PASS	IMP;DR2=0.57;AF=0.3505
+16	4339684	rs2387280	A	T	PASS	IMP;DR2=0.99;AF=0.2684
+17	12416363	rs17713682	G	T	PASS	IMP;DR2=0.85;AF=0.1908
+20	62692060	rs6090040	A	C	PASS	IMP;DR2=0.96;AF=0.4672
+X	115129904	rs5991030	C	T	PASS	IMP;DR2=0.99;AF=0.5891
+X	131312089	rs5930554	T	C	PASS	IMP;DR2=1;AF=0.3045

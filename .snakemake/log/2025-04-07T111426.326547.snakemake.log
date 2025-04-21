@@ -1,0 +1,6 @@
+Building DAG of jobs...
+MissingInputException in rule remove_related in file /mnt/scratch/agnes/gene-IPI/Snakefile, line 115:
+Missing input files for rule remove_related:
+    output: results/final_phenotype/IPI_pgs_covariates.txt
+    affected files:
+        resources/batches.json

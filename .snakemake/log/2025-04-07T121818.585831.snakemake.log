@@ -1,0 +1,24 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job      count
+-----  -------
+all          1
+total        1
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Mon Apr  7 12:18:18 2025]
+localrule all:
+    input: results/phenotype/filtered_pregnancies.csv, results/gwas/moba_common_qc_ipi.pgen, results/gwas/moba_common_qc_ipi.pvar, results/gwas/moba_common_qc_ipi.psam, results/pgs/ipi_pgs.sscore, results/phenotype/pheno_pgs_unique.csv
+    jobid: 0
+    reason: Forced execution
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Mon Apr  7 12:18:18 2025]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: .snakemake/log/2025-04-07T121818.585831.snakemake.log

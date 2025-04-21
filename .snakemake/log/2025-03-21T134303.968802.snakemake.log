@@ -1,0 +1,36 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job             count
+------------  -------
+all                 1
+cleaned_data        1
+total               2
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Fri Mar 21 13:43:04 2025]
+localrule cleaned_data:
+    input: /mnt/scratch/agnes/PDB1724_MFR_541_v12.csv, /mnt/scratch/agnes/parental_ID_to_PREG_ID.csv, /mnt/work/p1724/v12/linkage_Mother_PDB1724.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam
+    output: results/phenotype/filtered_pregnancies.csv, results/plots/phenotype/ipi_distribution_corrected.png, results/plots/phenotype/ipi_density_IPI.png, results/plots/phenotype/ipi_ushape.png, results/plots/phenotype/ipi_delivery_type.png, results/plots/phenotype/ipi_stillbirth_vs_livebirth.png, result/phenotype/IDs_extract.txt
+    jobid: 1
+    reason: Set of input files has changed since last execution; Code has changed since last execution
+    resources: tmpdir=/mnt/scratch/tmp
+
+RuleException:
+CalledProcessError in file /mnt/scratch/agnes/gene-IPI/Snakefile, line 19:
+Command 'set -euo pipefail;  Rscript --vanilla /mnt/scratch/agnes/gene-IPI/.snakemake/scripts/tmp8h1p7bdc.cleancode-backup.R' returned non-zero exit status 1.
+[Fri Mar 21 13:43:16 2025]
+Error in rule cleaned_data:
+    jobid: 1
+    input: /mnt/scratch/agnes/PDB1724_MFR_541_v12.csv, /mnt/scratch/agnes/parental_ID_to_PREG_ID.csv, /mnt/work/p1724/v12/linkage_Mother_PDB1724.csv, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam
+    output: results/phenotype/filtered_pregnancies.csv, results/plots/phenotype/ipi_distribution_corrected.png, results/plots/phenotype/ipi_density_IPI.png, results/plots/phenotype/ipi_ushape.png, results/plots/phenotype/ipi_delivery_type.png, results/plots/phenotype/ipi_stillbirth_vs_livebirth.png, result/phenotype/IDs_extract.txt
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-03-21T134303.968802.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -1,51 +1,67 @@
+# libraries for data handling
 import pandas as pd
 import numpy as np
 import json
 
+# defining the two parity groups: nulliparous (first pregnancy) and multiparous
+parity_names= ['nulliparous', 'multiparous']
+
+# the final target files that the pipeline should produce
 rule all:
     input:
-        "results/phenotype/filtered_pregnancies.csv",
+        # final phenotype files per parity
+        expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity= parity_names),
+        # GWAS genotype data (after QC)
         "results/gwas/moba_common_qc_ipi.pgen",
         "results/gwas/moba_common_qc_ipi.pvar",
         "results/gwas/moba_common_qc_ipi.psam",
-        "results/pgs/ipi_pgs.sscore",
-        "results/phenotype/pheno_pgs_unique.csv",
-        "results/final_phenotype/IPI_pgs_covariates.txt"
+        # polygenic scores
+        expand("results/pgs/ipi_pgs_{parity}.sscore", parity= parity_names),
+        # phenotype merged with PGS per parity
+        expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity= parity_names),
+        # final analysis-ready phenotype with covariates per parity
+        expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity= parity_names)
 
+# rule to clean phenotype data and create ID lists for genotype filtering
 rule cleaned_data:
     input:
+        # raw pregnancy data, parental linkage data, mother-child linkage file, and genotype sample info
         "/mnt/scratch/agnes/PDB1724_MFR_541_v12.csv",
         "/mnt/scratch/agnes/parental_ID_to_PREG_ID.csv",
         "/mnt/work/p1724/v12/linkage_Mother_PDB1724.csv",
         "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam" 
     output:
-        "results/phenotype/filtered_pregnancies.csv",
-        "results/plots/phenotype/ipi_distribution_corrected.png",
-        "results/plots/phenotype/ipi_density_IPI.png",
-        "results/plots/phenotype/ipi_ushape.png",
-        "results/plots/phenotype/ipi_delivery_type.png",
-        "results/plots/phenotype/ipi_stillbirth_vs_livebirth.png",
-        "results/phenotype/IDs_extract.txt"
+        # filtered phenotype per parity and sample ID files
+        "results/phenotype/filtered_pregnancies_{parity}.csv",
+        "results/phenotype/IDs_extract_{parity}.txt"
     script:
-        "scripts/IPI_stat.R"
+         # r script to clean and filter phenotypic data
+        "scripts/phenotype_stat.R"
 
+# rule to perform SNP-level and sample-level quality control on genotype data
 rule snp_qc:
     input:
+        # original genotype files
         psam = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam",
         pvar = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pvar",
         pgen = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen",
-        keep = "results/gwas/keep_samples.txt",
+        # IDs to keep and list of SNPs to extract
+        keep = "results/phenotype/IDs_extract_{parity}.txt",
         snplist = "SNP_to_extract.txt"
     output:
-        pgen = "results/gwas/moba_common_qc_ipi.pgen",
-        pvar = "results/gwas/moba_common_qc_ipi.pvar",
-        psam = "results/gwas/moba_common_qc_ipi.psam"
+        # QCed genotype files
+        pgen = "results/gwas/moba_common_qc_ipi_{parity}.pgen",
+        pvar = "results/gwas/moba_common_qc_ipi_{parity}.pvar",
+        psam = "results/gwas/moba_common_qc_ipi_{parity}.psam"
     params:
+        # base genotype file location and output path
         pfile= "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common",
-        results= "results/gwas/moba_common_qc_ipi"
+        results= "results/gwas/moba_common_qc_ipi_{parity}"
     log:
-        "results/gwas/moba_common_qc_ipi.log"
+        # log file capturing plink2 output and errors
+        "results/gwas/moba_common_qc_ipi_{parity}.log"
     shell:
+        # running plink2 with genotype and SNP QC thresholds
         """
     plink2 \
       --pfile {params.pfile} \
@@ -58,20 +74,20 @@ rule snp_qc:
       --make-pgen \
       --out {params.results} > {log} 2>&1
         """
-
+# rule to calculate polygenic scores for each sample
 rule calculate_pgs:
     input:
-        weights = "variant_weights.txt",
-        pfile = expand("results/gwas/moba_common_qc_ipi.{ext}", ext= ['pgen', 'pvar', 'psam'])
+        weights = "variant_weights.txt", # SNP weights for PGS calculation
+        pfile = expand("results/gwas/moba_common_qc_ipi_{{parity}}.{ext}", ext= ['pgen', 'pvar', 'psam'])
     output:
-        sscore = "results/pgs/ipi_pgs.sscore",
-        log = "results/pgs/ipi_pgs.log"
+        sscore = "results/pgs/ipi_pgs_{parity}.sscore", # output score file
+        log = "results/pgs/ipi_pgs_{parity}.log"
     params:
-        pfile = "results/gwas/moba_common_qc_ipi",
-        out = "results/pgs/ipi_pgs"
+        pfile = "results/gwas/moba_common_qc_ipi_{parity}",
+        out = "results/pgs/ipi_pgs_{parity}"
     shell:
         """
-        mkdir -p results/pgs
+        mkdir -p results/pgs # ensuring output folder exists
         plink2 \
           --pfile {params.pfile} \
           --score {input.weights} 1 2 3 cols=scoresums \
@@ -79,9 +95,10 @@ rule calculate_pgs:
           --out {params.out} > {output.log} 2>&1
         """
 
+# function to identify and remove related individuals based on kinship coefficients
 def selectUnrelated(input_kin, df, x):
         kin= pd.read_csv(input_kin, header= 0, sep= '\t')
-        kin= kin.loc[kin.Kinship > 0.125, :]
+        kin= kin.loc[kin.Kinship > 0.125, :] # filtered out related pairs (kinship > ~1st cousins)
         kin= kin.loc[kin.ID1.isin(x.values), :]
         kin= kin.loc[kin.ID2.isin(x.values), :]
         kin= kin.loc[:, ['ID1','ID2','Kinship']]
@@ -103,39 +120,65 @@ def selectUnrelated(input_kin, df, x):
         remove['IID']= remove.FID
         return remove
 
+# rule to restrict analysis to European ancestry (CEU) individuals and merge phenotypes with PGS
 rule keep_CEU:
     input:
-        pheno = "results/phenotype/filtered_pregnancies.csv",
-        pgs = "results/pgs/ipi_pgs.sscore",
+        pheno = "results/phenotype/filtered_pregnancies_{parity}.csv",
+        pgs = "results/pgs/ipi_pgs_{parity}.sscore",
         ceu_ids = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03_ceu_core_ids"
     output:
-        "results/phenotype/pheno_pgs_unique.csv"
+        "results/phenotype/pheno_pgs_unique_{parity}.csv"
     script:
+         # r script that filters for CEU samples and merges phenotypes with PGS scores
         "scripts/qc_ipi_pgs.R"
 
+# rule to remove related individuals, merge phenotypes with PCA and batch info
 rule remove_related:
         'Concat pheno files, and add PCA.'
         input:
-                'results/phenotype/pheno_pgs_unique.csv',
-                '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0',
-                '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs',
-		'/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches',
-                'resources/batches.json'
+                'results/phenotype/pheno_pgs_unique_{parity}.csv', # CEU-filtered phenotype+PGS
+                '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/kinship/moba_genotypes_2024.12.03.kin0', # Kinship matrix
+                '/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03.pcs', # principal components
+		'/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches', # batch info
+                'resources/batches.json' # batch harmonisation dictionary
         output:
-                'results/final_phenotype/IPI_pgs_covariates.txt'
+                'results/final_phenotype/IPI_pgs_covariates_{parity}.txt'
         run:
+                # loading phenotype+PGS data
                 d= pd.read_csv(input[0], header= 0, sep= ',')
+                # removing related individuals
                 remove= selectUnrelated(input[1], d, d.SENTRIX_ID)
                 d= d.loc[~d.SENTRIX_ID.isin(remove.IID.values), : ]
+                # merging principal components
                 pcs= pd.read_csv(input[2], header= 0, sep= '\t')
 		pcs= pcs[['IID', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6']]
                 d= pd.merge(d, pcs, right_on= 'IID', left_on= 'SENTRIX_ID')
-		batches= pd.read_csv(input[3], sep= '\t', header= 0)
+		# merging batch information
+                batches= pd.read_csv(input[3], sep= '\t', header= 0)
 		batches.columns= ['IID', 'batch']
 		d= pd.merge(d, batches, left_on= 'SENTRIX_ID', right_on= 'IID')
+                # harmonising batch names
                 with open(input[4], 'r') as fp:
                         batches_dict= json.load(fp)
                 d['batch'].replace(batches_dict, inplace= True)
                 d['batch']= d['batch'].str.replace(' ', '_')
+                # final analysis-ready phenotype
                 d.to_csv(output[0], sep= '\t', header= True, index= False)
 
+# rule to generate figures summarising IPI and birth outcomes
+rule figures_IPI:
+    input:
+        "/mnt/scratch/agnes/PDB1724_MFR_541_v12.csv",
+        "/mnt/scratch/agnes/parental_ID_to_PREG_ID.csv",
+        "/mnt/work/p1724/v12/linkage_Mother_PDB1724.csv",
+        "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam"
+    output:
+    # output various descriptive plots about IPI and outcomes
+        "results/plots/phenotype/ipi_distribution_corrected.png",
+        "results/plots/phenotype/ipi_density_IPI.png",
+        "results/plots/phenotype/ipi_ushape.png",
+        "results/plots/phenotype/ipi_delivery_type.png",
+        "results/plots/phenotype/ipi_stillbirth_vs_livebirth.png",
+    script:
+    # r script that generates descriptive plots
+        "scripts/figures_IPI_stat.R"

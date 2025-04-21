@@ -1,0 +1,40 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job       count
+------  -------
+all           1
+snp_qc        1
+total         2
+
+Select jobs to execute...
+Execute 1 jobs...
+
+[Wed Apr  2 13:34:56 2025]
+localrule snp_qc:
+    input: /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pvar, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen, results/gwas/keep_samples.txt, SNP_to_extract.txt
+    output: results/gwas/moba_common_qc_ipi.pgen, results/gwas/moba_common_qc_ipi.pvar, results/gwas/moba_common_qc_ipi.psam
+    log: results/gwas/moba_common_qc_ipi.log
+    jobid: 2
+    reason: Code has changed since last execution; Params have changed since last execution
+    resources: tmpdir=/mnt/scratch/tmp
+
+[Wed Apr  2 13:34:57 2025]
+Error in rule snp_qc:
+    jobid: 2
+    input: /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pvar, /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen, results/gwas/keep_samples.txt, SNP_to_extract.txt
+    output: results/gwas/moba_common_qc_ipi.pgen, results/gwas/moba_common_qc_ipi.pvar, results/gwas/moba_common_qc_ipi.psam
+    log: results/gwas/moba_common_qc_ipi.log (check log file(s) for error details)
+    shell:
+        
+        plink2 /mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common          --pfile            --keep results/gwas/keep_samples.txt           --extract SNP_to_extract.txt           --maf 0.01           --geno 0.01           --mind 0.01           --hwe 1e-6 midp           --make-pgen           --out results/gwas/moba_common_qc_ipi > results/gwas/moba_common_qc_ipi.log 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-04-02T133410.267268.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.
