@@ -197,7 +197,7 @@ rule gxe_interaction_ipi_parameters12_gw:
     threads: 4
     shell:
         """
-        plink2 \
+          plink2 \
           --pfile {params.pfile} \
           --keep {input.keep} \
           --pheno {input.pheno} \
@@ -207,6 +207,6 @@ rule gxe_interaction_ipi_parameters12_gw:
           --covar-variance-standardize \
           --glm interaction \
           --parameters 1-13 \
+          --extract high_qual_snps.txt \
           --threads {threads} \
-          --out results/gwas/gxe_ipi_gd_gw
-        """
+          out results/gwas/gxe_ipi_gd_gw
