@@ -98,3 +98,4 @@ write.table(top_hits_clean, "top_snps_clean.txt", sep = "\t", quote = FALSE, row
 write.table(top_hits_clean$ID, "top_rsids.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
 write.table(top_20, "top_20_snps_clean.txt", sep = "\t", quote = FALSE, row.names = FALSE)
 write.table(top_20$ID, "top20_rsids.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
+
