@@ -4,7 +4,7 @@ library(dplyr)
 library(data.table)
 
 
-gxe_data <- fread("~/scratch/agnes/gene-IPI/results/gwas/gxe_ipi_gd_gw_screen.SVLEN_UL_DG.glm.linear")
+gxe_data <- fread("~/scratch/agnes/gene-IPI/test.SVLEN_UL_DG.glm.linear")
 
 # IPI × SNP test
 gxe_addxipi <- gxe_data %>%
@@ -13,7 +13,7 @@ gxe_addxipi <- gxe_data %>%
     MAF = ifelse(A1_FREQ > 0.5, 1 - A1_FREQ, A1_FREQ)
   ) %>%
   filter(
-    MAF >= 0.01,
+    MAF >= 0.05,
     OBS_CT >= 1000,
     abs(BETA) < 10
   )
@@ -60,8 +60,11 @@ plot(region1$POS, -log10(region1$P),
 abline(v = top_snps$POS[1], col = "red", lty = 2)
 
 # qq plot // components
-gxe_qq <- gxe_data %>%
-  filter(TEST == "ADDxIPI", !is.na(P), P > 0) %>%
+gxe_qq <- gxe_addxipi %>%
+  filter(MAF > 0.05, !is.na(P), P > 0) %>%
+  group_by(ID) %>%
+  slice_min(order_by = P, n = 1) %>%
+  ungroup() %>%
   arrange(P) %>%
   mutate(
     observed = -log10(P),
@@ -99,3 +102,7 @@ write.table(top_hits_clean$ID, "top_rsids.txt", quote = FALSE, row.names = FALSE
 write.table(top_20, "top_20_snps_clean.txt", sep = "\t", quote = FALSE, row.names = FALSE)
 write.table(top_20$ID, "top20_rsids.txt", quote = FALSE, row.names = FALSE, col.names = FALSE)
 
+
+chisq <- qchisq(1 - gxe_addxipi_unique$P, df = 1)
+lambda_gc <- median(chisq, na.rm = TRUE) / qchisq(0.5, df = 1)
+cat("Genomic control lambda (MAF ≥ 0.05):", lambda_gc, "\n")
