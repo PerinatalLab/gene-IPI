@@ -183,10 +183,6 @@ rule figures_IPI:
     # r script that generates descriptive plots
             "scripts/figures_IPI_stat.R"
 
-# libraries for data handling
-import pandas as pd
-import numpy as np
-import json
 
 # defining the two parity groups: nulliparous (first pregnancy) and multiparous
 parity_names= ['nulliparous', 'multiparous']
