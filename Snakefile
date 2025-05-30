@@ -203,7 +203,7 @@ rule gxe_interaction_ipi_parameters12_gw:
           --pheno {input.pheno} \
           --pheno-name SVLEN_UL_DG \
           --covar {input.pheno} \
-          --covar-name IPI,PGS,PC1,PC2,PC3,PC4,PC5,PC6 \
+          --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5,BATCH \
           --covar-variance-standardize \
           --glm interaction \
           --parameters 1-13 \
