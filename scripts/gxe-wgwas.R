@@ -4,7 +4,7 @@ library(dplyr)
 library(data.table)
 
 
-gxe_data <- fread("results/gwas/gxe_ipi_gd_gw_screen.SVLEN_UL_DG.glm.linear")
+gxe_data <- fread("~/scratch/agnes/gene-IPI/results/gwas/gxe_ipi_gd_gw_screen.SVLEN_UL_DG.glm.linear")
 
 # IPI × SNP test
 gxe_addxipi <- gxe_data %>%
