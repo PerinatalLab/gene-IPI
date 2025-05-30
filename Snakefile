@@ -210,3 +210,4 @@ rule gxe_interaction_ipi_parameters12_gw:
           --extract high_qual_snps.txt \
           --threads {threads} \
           out results/gwas/gxe_ipi_gd_gw
+        """
