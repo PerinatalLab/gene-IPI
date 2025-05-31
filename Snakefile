@@ -194,7 +194,7 @@ rule gxe_interaction_ipi_parameters12_gw:
         "results/gwas/gxe_ipi_gd_gw.log"
     params:
         pfile = "results/gwas/moba_common_qc_ipi_multiparous_genomewide"
-    threads: 4
+    threads: 10
     shell:
         """
           plink2 \
