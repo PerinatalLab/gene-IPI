@@ -237,3 +237,4 @@ rule gxe_interaction_ipi_parameters12_gw:
           --parameters 1-9 \
           --threads {threads} \
           --out results/gwas/gxe_ipi_gd_gw
+        """
