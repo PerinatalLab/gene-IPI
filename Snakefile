@@ -182,3 +182,58 @@ rule figures_IPI:
     script:
     # r script that generates descriptive plots
         "scripts/figures_IPI_stat.R"
+
+
+# innen csekkolni
+rule prepare_gxe_genomewide_data:
+    input:
+        pfile = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.pgen",
+        keep = "results/phenotype/IDs_extract_multiparous.txt"
+    output:
+        pgen = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pgen",
+        pvar = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
+        psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam"
+    log:
+        "results/gwas/moba_common_qc_ipi_multiparous_genomewide.log"
+    params:
+	    params_pfile= "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common"
+    shell:
+        """
+        plink2 \
+	  --pfile {params.params_pfile} \
+          --keep {input.keep} \
+          --maf 0.01 \
+          --geno 0.01 \
+          --mind 0.01 \
+          --hwe 1e-6 midp \
+          --make-pgen \
+          --out results/gwas/moba_common_qc_ipi_multiparous_genomewide > {log} 2>&1
+        """
+
+rule gxe_interaction_ipi_parameters12_gw:
+    input:
+        pgen = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pgen",
+        pvar = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
+        psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
+        keep = "results/phenotype/IDs_extract_multiparous.txt",
+        pheno = "results/final_phenotype/plink_ready_IPI_pgs_covariates_multiparous.txt"
+    output:
+        "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
+        "results/gwas/gxe_ipi_gd_gw.log"
+    params:
+	pfile = "results/gwas/moba_common_qc_ipi_multiparous_genomewide"
+    threads: 4
+    shell:
+        """
+        plink2 \
+          --pfile {params.pfile} \
+          --keep {input.keep} \
+          --pheno {input.pheno} \
+          --pheno-name SVLEN_UL_DG \
+          --covar {input.pheno} \
+          --covar-name IPI,PGS,PC1,PC2,PC3,PC4,PC5,PC6 \
+          --covar-variance-standardize \
+          --glm interaction \
+          --parameters 1-9 \
+          --threads {threads} \
+          --out results/gwas/gxe_ipi_gd_gw
