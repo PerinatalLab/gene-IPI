@@ -5,17 +5,27 @@ import json
 
 # defining the two parity groups: nulliparous (first pregnancy) and multiparous
 parity_names = ['nulliparous', 'multiparous']
-
-# the final target files that the pipeline should produce
 rule all:
     input:
+        # Phenotype files according to parity
         expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=parity_names),
-        "results/gwas/moba_common_qc_ipi.pgen",
-        "results/gwas/moba_common_qc_ipi.pvar",
-        "results/gwas/moba_common_qc_ipi.psam",
+        # Genotype files according to parity (st)
+        expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
+        expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=parity_names),
+        expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=parity_names),
+        # Genomewide files for multiparous
+        "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pgen",
+        "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
+        "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
+        # Polygenic scores
         expand("results/pgs/ipi_pgs_{parity}.sscore", parity=parity_names),
+        # CEU-qc phenotype + PGS 
         expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=parity_names),
-        expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names)
+        # final phenotype + covariates
+        expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
+        # GxE genomewide output for multiparous only
+        "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear"
+
 
 # rule to clean phenotype data and create ID lists for genotype filtering
 rule cleaned_data:
@@ -39,9 +49,9 @@ rule snp_qc:
         keep = "results/phenotype/IDs_extract_{parity}.txt",
         snplist = "SNP_to_extract.txt"
     output:
-        pgen = "results/gwas/moba_common_qc_ipi_{parity}.pgen",
-        pvar = "results/gwas/moba_common_qc_ipi_{parity}.pvar",
-        psam = "results/gwas/moba_common_qc_ipi_{parity}.psam"
+        pgen = "results/gwas/moba_common_qc_ipi_multiparous_genomewide_{parity}.pgen",
+        pvar = "results/gwas/moba_common_qc_ipi_multiparous_genomewide_{parity}.pvar",
+        psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide_{parity}.psam"
     params:
         pfile = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common",
         results = "results/gwas/moba_common_qc_ipi_{parity}"
@@ -65,7 +75,9 @@ rule snp_qc:
 rule calculate_pgs:
     input:
         weights = "variant_weights.txt",
-        pfile = expand("results/gwas/moba_common_qc_ipi_{{parity}}.{ext}", ext=['pgen', 'pvar', 'psam'])
+        pgen = "results/gwas/moba_common_qc_ipi_{parity}.pgen",
+        pvar = "results/gwas/moba_common_qc_ipi_{parity}.pvar",
+        psam = "results/gwas/moba_common_qc_ipi_{parity}.psam"
     output:
         sscore = "results/pgs/ipi_pgs_{parity}.sscore",
         log = "results/pgs/ipi_pgs_{parity}.log"
@@ -81,7 +93,6 @@ rule calculate_pgs:
           --nonfounders \
           --out {params.out} > {output.log} 2>&1
         """
-
 # function to identify and remove related individuals based on kinship coefficients
 def selectUnrelated(input_kin, df, x):
     kin = pd.read_csv(input_kin, sep='\t')
@@ -211,3 +222,15 @@ rule gxe_interaction_ipi_parameters12_gw:
           --threads {threads} \
           out results/gwas/gxe_ipi_gd_gw
         """
+
+# this sends a message to Ágnes:: did she save the world or not?
+onsuccess:
+    shell("curl -X POST -H 'Content-type: application/json' "
+          "--data '{{\"text\”:\”Hurray! Snakemake pipeline completed successfully!\"}}' "
+          "https://hooks.slack.com/services/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")
+
+onerror:
+    shell("curl -X POST -H 'Content-type: application/json' "
+          "--data '{{\"text\":\"Snakemake pipeline failed.\"}}' "
+          "https://hooks.slack.com/services/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")
+
