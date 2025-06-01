@@ -4,19 +4,22 @@ library(dplyr)
 library(data.table)
 
 
-gxe_data <- fread("~/scratch/agnes/gene-IPI/test.SVLEN_UL_DG.glm.linear")
+gxe_data <- fread("~/scratch/agnes/gene-IPI/results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear")
 
+# double check for PLINK2 parameters
+names(gxe_data)
+
+# (I did a MAF 0.01 in PLINK2)
+# this is in PLINK2: --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5
 # IPI × SNP test
 gxe_addxipi <- gxe_data %>%
   filter(TEST == "ADDxIPI") %>%
-  mutate(
-    MAF = ifelse(A1_FREQ > 0.5, 1 - A1_FREQ, A1_FREQ)
-  ) %>%
   filter(
-    MAF >= 0.05,
     OBS_CT >= 1000,
     abs(BETA) < 10
   )
+
+
 
 # top 10 SNPs -- raw, for checking
 top_hits <- gxe_addxipi %>%
@@ -24,6 +27,7 @@ top_hits <- gxe_addxipi %>%
   select(`#CHROM`, POS, ID, BETA, SE, T_STAT, P) %>%
   head(10)
 print(top_hits)
+unique(gxe_data$TEST)
 
 # to remove doubled SNP IDs
 duplicated_snps <- gxe_addxipi %>% filter(duplicated(ID))

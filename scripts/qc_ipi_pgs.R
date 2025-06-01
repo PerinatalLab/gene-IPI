@@ -14,7 +14,7 @@ names(pgs)=c("IID", "PGS")
 
 # ceu ancestor kept only
 #ceu <- fread("/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/pca/moba_genotypes_2024.12.03_ceu_core_ids", header = FALSE)
-ceu <- fread(snakemake@input[[3]])
+ceu <- fread(snakemake@input[[3]], header= F)
 names(ceu)= c("FID", "IID")
 
 pheno_pgs=inner_join(pheno, pgs, by= c("SENTRIX_ID"="IID"))
