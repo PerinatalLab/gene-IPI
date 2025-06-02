@@ -94,7 +94,6 @@ rule calculate_pgs:
           --out {params.out} > {output.log} 2>&1
         """
 # function to identify and remove related individuals based on kinship coefficients
-# function to identify and remove related individuals based on kinship coefficients
 def selectUnrelated(input_kin, df, x):
         kin= pd.read_csv(input_kin, header= 0, sep= '\t')
         kin= kin.loc[kin.Kinship > 0.125, :] # filtered out related pairs (kinship > ~1st cousins)
