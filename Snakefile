@@ -218,10 +218,10 @@ rule gxe_interaction_ipi_parameters12_gw:
           --pheno {input.pheno} \
           --pheno-name SVLEN_UL_DG \
           --covar {input.pheno} \
-          --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5 \
+          --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5, batch \
           --covar-variance-standardize \
           --glm interaction \
-          --parameters 1-9 \
+          --parameters 1-10 \
           --extract high_qual_snps.txt \
           --threads {threads} \
           out results/gwas/gxe_ipi_gd_gw
@@ -229,12 +229,16 @@ rule gxe_interaction_ipi_parameters12_gw:
 
 # this sends a message to Ágnes:: did she save the world or not?
 onsuccess:
-    shell("curl -X POST -H 'Content-type: application/json' "
-          "--data '{\"text\": \"Hurray! Snakemake pipeline completed successfully!\"}' "
-          "https://hooks.slack.com/services/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")
+    shell("""
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{{"text":"Hurray! Snakemake pipeline completed successfully!"}}' \
+        https://hooks.slack.com/services/...
+    """)
 
 onerror:
-    shell("curl -X POST -H 'Content-type: application/json' "
-          "--data '{\"text\": \"Snakemake pipeline failed.\"}' "
-          "https://hooks.slack.com/services/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")
+    shell("""
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{{"text":"Snakemake pipeline failed."}}' \
+        https://hooks.slack.com/services/...
+    """)
 
