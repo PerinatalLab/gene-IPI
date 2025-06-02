@@ -230,11 +230,11 @@ rule gxe_interaction_ipi_parameters12_gw:
 # this sends a message to Ágnes:: did she save the world or not?
 onsuccess:
     shell("curl -X POST -H 'Content-type: application/json' "
-          "--data '{{\"text\”:\”Hurray! Snakemake pipeline completed successfully!\"}}' "
+          "--data '{\"text\": \"Hurray! Snakemake pipeline completed successfully!\"}' "
           "https://hooks.slack.com/services/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")
 
 onerror:
     shell("curl -X POST -H 'Content-type: application/json' "
-          "--data '{{\"text\":\"Snakemake pipeline failed.\"}}' "
+          "--data '{\"text\": \"Snakemake pipeline failed.\"}' "
           "https://hooks.slack.com/services/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")
 
