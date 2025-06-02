@@ -94,25 +94,30 @@ rule calculate_pgs:
           --out {params.out} > {output.log} 2>&1
         """
 # function to identify and remove related individuals based on kinship coefficients
+# function to identify and remove related individuals based on kinship coefficients
 def selectUnrelated(input_kin, df, x):
-    kin = pd.read_csv(input_kin, sep='\t')
-    kin = kin[kin.Kinship > 0.125]
-    kin = kin[kin.ID1.isin(x.values) & kin.ID2.isin(x.values)]
-    kin_temp = pd.concat([
-        kin[['ID1', 'ID2', 'Kinship']],
-        kin[['ID2', 'ID1', 'Kinship']].rename(columns={'ID2': 'ID1', 'ID1': 'ID2'})
-    ])
-    kin_temp['n'] = kin_temp.groupby('ID1')['ID1'].transform('count')
-    kin_temp['nn'] = kin_temp.groupby('ID2')['ID2'].transform('count')
-    kin_temp.sort_values(by=['n', 'nn'], inplace=True)
-    to_keep = []
-    for i in range(len(kin_temp)):
-        if kin_temp.iloc[i, 0] not in kin_temp.iloc[0:i, 1].values:
-            to_keep.append(kin_temp.iloc[i, 0])
-    to_remove = list(set(kin_temp.ID1) - set(to_keep))
-    remove = pd.DataFrame({'FID': to_remove})
-    remove['IID'] = remove.FID
-    return remove
+        kin= pd.read_csv(input_kin, header= 0, sep= '\t')
+        kin= kin.loc[kin.Kinship > 0.125, :] # filtered out related pairs (kinship > ~1st cousins)
+        kin= kin.loc[kin.ID1.isin(x.values), :]
+        kin= kin.loc[kin.ID2.isin(x.values), :]
+        kin= kin.loc[:, ['ID1','ID2','Kinship']]
+        kin_temp= kin.copy()
+        kin_temp.columns= ['ID2', 'ID1', 'Kinship']
+        kin_temp= pd.concat([kin_temp, kin], ignore_index=True)
+        kin_temp['n']= kin_temp.groupby('ID1')['ID1'].transform('count')
+        kin_temp['nn']= kin_temp.groupby('ID2')['ID2'].transform('count')
+        kin_temp.sort_values(by=['n', 'nn'], inplace= True)
+        to_keep= list()
+        for i in range(0, len(kin_temp.index)):
+                if kin_temp.iloc[i, 0] in kin_temp.iloc[0:i, 1].values:
+                        kin_temp.iloc[i, 1]= "X"
+                else:
+                        to_keep.append(kin_temp.iloc[i, 0])
+        to_remove= [i for i in kin_temp.ID1 if i not in to_keep]
+        to_remove= list(set(to_remove))
+        remove= pd.DataFrame({'FID': to_remove})
+        remove['IID']= remove.FID
+        return remove
 
 # rule to restrict analysis to CEU ancestry and merge with PGS
 rule keep_CEU:
@@ -214,10 +219,10 @@ rule gxe_interaction_ipi_parameters12_gw:
           --pheno {input.pheno} \
           --pheno-name SVLEN_UL_DG \
           --covar {input.pheno} \
-          --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5,BATCH,PGS \
+          --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5 \
           --covar-variance-standardize \
           --glm interaction \
-          --parameters 1-10 \
+          --parameters 1-9 \
           --extract high_qual_snps.txt \
           --threads {threads} \
           out results/gwas/gxe_ipi_gd_gw
