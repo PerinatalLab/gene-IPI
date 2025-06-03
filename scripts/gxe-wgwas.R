@@ -1,25 +1,23 @@
-# QC ?? wide GWAS 
+# QC ?? GWAS 
 library(ggplot2)
 library(dplyr)
 library(data.table)
 
 
-gxe_data <- fread("~/scratch/agnes/gene-IPI/results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear")
+gxe_data <- fread("~/scratch/agnes/gene-IPI/test.SVLEN_UL_DG.glm.linear")
 
-# double check for PLINK2 parameters
-names(gxe_data)
 
-# (I did a MAF 0.01 in PLINK2)
-# this is in PLINK2: --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5
-# IPI × SNP test
+# IPI × SNP test, MAF = 0.05
 gxe_addxipi <- gxe_data %>%
   filter(TEST == "ADDxIPI") %>%
+  mutate(
+    MAF = ifelse(A1_FREQ > 0.5, 1 - A1_FREQ, A1_FREQ)
+  ) %>%
   filter(
+    MAF >= 0.05,
     OBS_CT >= 1000,
     abs(BETA) < 10
   )
-
-
 
 # top 10 SNPs -- raw, for checking
 top_hits <- gxe_addxipi %>%
@@ -27,7 +25,6 @@ top_hits <- gxe_addxipi %>%
   select(`#CHROM`, POS, ID, BETA, SE, T_STAT, P) %>%
   head(10)
 print(top_hits)
-unique(gxe_data$TEST)
 
 # to remove doubled SNP IDs
 duplicated_snps <- gxe_addxipi %>% filter(duplicated(ID))
@@ -110,3 +107,43 @@ write.table(top_20$ID, "top20_rsids.txt", quote = FALSE, row.names = FALSE, col.
 chisq <- qchisq(1 - gxe_addxipi_unique$P, df = 1)
 lambda_gc <- median(chisq, na.rm = TRUE) / qchisq(0.5, df = 1)
 cat("Genomic control lambda (MAF ≥ 0.05):", lambda_gc, "\n")
+
+
+# clumping:: SNP on 10 chr, gwas significance fine map
+table(top_hits_clean$`#CHROM`)
+region_chr10 <- gxe_addxipi %>%
+  filter(`#CHROM` == "10",
+         POS >= 122600000,
+         POS <= 123000000)
+
+ggplot(region_chr10, aes(x = POS, y = -log10(P))) +
+  geom_point(color = "blue", alpha = 0.5) +
+  geom_vline(xintercept = top_hits_clean$POS[1], color = "red", linetype = "dashed") +
+  labs(title = "Regional plot - chr10", x = "Position", y = "-log10(P)") +
+  theme_minimal()
+
+top_hits_clean$ID[1]
+
+# batch effects
+pheno <- fread("/home/a24agnju/scratch/agnes/gene-IPI/results/final_phenotype/IPI_pgs_covariates_multiparous.txt")
+table(pheno$batch)
+
+sort(table(pheno$batch), decreasing = TRUE)
+
+boxplot(IPI ~ batch, data = pheno,
+        las = 2,          # döntött tengelyfeliratok
+        main = "IPI eloszlása batch-ek szerint",
+        ylab = "IPI", xlab = "Batch",
+        col = "lightblue")
+
+
+boxplot(SVLEN_UL_DG ~ batch, data = pheno,
+        las = 2,
+        main = "SVLEN_UL_DG eloszlása batch-ek szerint",
+        ylab = "Gestational Duration (SVLEN_UL_DG)", xlab = "Batch",
+        col = "lightgreen")
+
+summary(lm(IPI ~ batch, data = pheno))
+summary(lm(SVLEN_UL_DG ~ batch, data = pheno))
+
+
