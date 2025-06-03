@@ -131,16 +131,16 @@ table(pheno$batch)
 sort(table(pheno$batch), decreasing = TRUE)
 
 boxplot(IPI ~ batch, data = pheno,
-        las = 2,          # döntött tengelyfeliratok
-        main = "IPI eloszlása batch-ek szerint",
+        las = 2,        
+        main = "Ditribution of IPI by batchs",
         ylab = "IPI", xlab = "Batch",
         col = "lightblue")
 
 
 boxplot(SVLEN_UL_DG ~ batch, data = pheno,
         las = 2,
-        main = "SVLEN_UL_DG eloszlása batch-ek szerint",
-        ylab = "Gestational Duration (SVLEN_UL_DG)", xlab = "Batch",
+        main = "Distribution of SVLEN_UL_DG",
+        ylab = "Gestational duration (SVLEN_UL_DG)", xlab = "Batch",
         col = "lightgreen")
 
 summary(lm(IPI ~ batch, data = pheno))
