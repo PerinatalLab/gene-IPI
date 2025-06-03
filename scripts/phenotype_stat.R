@@ -25,6 +25,10 @@ filtered_pregnancies <- (snakemake@output[[1]])
 #dir.create("results/phenotype", recursive = TRUE, showWarnings = FALSE)
 #write.csv(mfr, "results/phenotype/filtered_pregnancies.csv", row.names = FALSE)
 
+# remove outlier gestational duration
+
+mfr <- filter(mfr, SVLEN_UL_DG >= 154, SVLEN_UL_DG< 308)
+
 # maternal records with mapping data
 merged_data <- mfr %>%
   inner_join(mapping, by = "PREG_ID_1724") %>%

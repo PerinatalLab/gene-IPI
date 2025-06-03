@@ -203,12 +203,14 @@ rule gxe_interaction_ipi_parameters12_gw:
         pvar = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
         psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         keep = "results/phenotype/IDs_extract_multiparous.txt",
-        pheno = "results/final_phenotype/plink_ready_IPI_pgs_covariates_multiparous.txt"
+        pheno = "results/final_phenotype/plink_ready_IPI_pgs_covariates_multiparous.txt",
+	high_qual = "high_qual_snps.txt"
     output:
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/gxe_ipi_gd_gw.log"
     params:
-        pfile = "results/gwas/moba_common_qc_ipi_multiparous_genomewide"
+        pfile = "results/gwas/moba_common_qc_ipi_multiparous_genomewide",
+	out = 'results/gwas/gxe_ipi_gd_gw'
     threads: 10
     shell:
         """
@@ -221,10 +223,11 @@ rule gxe_interaction_ipi_parameters12_gw:
           --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5, batch \
           --covar-variance-standardize \
           --glm interaction \
-          --parameters 1-10 \
-          --extract high_qual_snps.txt \
+          --parameters 1-11 \
+          --extract {input.high_qual} \
           --threads {threads} \
-          out results/gwas/gxe_ipi_gd_gw
+	  --max-alleles 2 \
+          --out {params.out}results/gwas/gxe_ipi_gd_gw
         """
 
 # this sends a message to Agnes:: did she save the world or not?
