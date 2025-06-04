@@ -21,8 +21,10 @@ rule all:
         expand("results/pgs/ipi_pgs_{parity}.sscore", parity=parity_names),
         # CEU-qc phenotype + PGS 
         expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=parity_names),
-        # final phenotype + covariates
+        # final phenotype + covariates        
         expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
+        # batch corrected phenotype and covariates
+        "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
         # GxE genomewide output for multiparous only
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear"
 
@@ -154,6 +156,15 @@ rule remove_related:
         d['batch'] = d['batch'].str.replace(' ', '_')
         d.to_csv(output[0], sep='\t', index=False)
 
+# rule to remove batch effect from IPI and create IPI_corrected file
+rule correct_ipi_batch:
+    input:
+        "results/final_phenotype/IPI_pgs_covariates_multiparous.txt"
+    output:
+        "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt"
+    script:
+        "scripts/correct_ipi_batch.R"
+
 # rule to generate figures summarising IPI and birth outcomes
 rule figures_IPI:
     input:
@@ -203,14 +214,14 @@ rule gxe_interaction_ipi_parameters12_gw:
         pvar = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
         psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         keep = "results/phenotype/IDs_extract_multiparous.txt",
-        pheno = "results/final_phenotype/plink_ready_IPI_pgs_covariates_multiparous.txt",
+        pheno = "results/final_phenotype/plink_ready_IPI_pgs_covariates_multiparous_for_plink.txt",
 	high_qual = "high_qual_snps.txt"
     output:
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/gxe_ipi_gd_gw.log"
     params:
         pfile = "results/gwas/moba_common_qc_ipi_multiparous_genomewide",
-	out = 'results/gwas/gxe_ipi_gd_gw'
+	out = "gxe_ipi_gd_gw"
     threads: 10
     shell:
         """
@@ -220,14 +231,14 @@ rule gxe_interaction_ipi_parameters12_gw:
           --pheno {input.pheno} \
           --pheno-name SVLEN_UL_DG \
           --covar {input.pheno} \
-          --covar-name IPI,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5, batch \
+          --covar-name IPI_corrected,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5,pgs,batch \
           --covar-variance-standardize \
           --glm interaction \
           --parameters 1-11 \
           --extract {input.high_qual} \
           --threads {threads} \
 	  --max-alleles 2 \
-          --out {params.out}results/gwas/gxe_ipi_gd_gw
+          --out {params.out}
         """
 
 # this sends a message to Agnes:: did she save the world or not?
