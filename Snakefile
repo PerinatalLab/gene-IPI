@@ -22,7 +22,7 @@ rule all:
         # CEU-qc phenotype + PGS 
         expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=parity_names),
         # final phenotype + covariates        
-        expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
+#        expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
         # batch corrected phenotype and covariates
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
         # GxE genomewide output for multiparous only
@@ -140,7 +140,8 @@ rule remove_related:
         "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches",
         "resources/batches.json"
     output:
-        "results/final_phenotype/IPI_pgs_covariates_{parity}.txt"
+        "results/final_phenotype/IPI_pgs_covariates_{parity}.txt",
+	"results/final_phenotype/IPI_GWAS_gxe_{parity}.txt"
     run:
         d = pd.read_csv(input[0])
         remove = selectUnrelated(input[1], d, d.SENTRIX_ID)
@@ -155,6 +156,9 @@ rule remove_related:
         d['batch'].replace(batches_dict, inplace=True)
         d['batch'] = d['batch'].str.replace(' ', '_')
         d.to_csv(output[0], sep='\t', index=False)
+	d= d[['#FID', 'IID_x', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']]
+	d.columns= ['#FID', 'IID', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']
+	d.to_csv(output[1], sep= '\t', header= True, index= False)
 
 # rule to remove batch effect from IPI and create IPI_corrected file
 rule correct_ipi_batch:
@@ -214,14 +218,14 @@ rule gxe_interaction_ipi_parameters12_gw:
         pvar = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
         psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         keep = "results/phenotype/IDs_extract_multiparous.txt",
-        pheno = "results/final_phenotype/plink_ready_IPI_pgs_covariates_multiparous_for_plink.txt",
-	high_qual = "high_qual_snps.txt"
+        pheno = "results/final_phenotype/IPI_GWAS_gxe_multiparous.txt",
+        high_qual = "high_qual_snps.txt",
     output:
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/gxe_ipi_gd_gw.log"
     params:
         pfile = "results/gwas/moba_common_qc_ipi_multiparous_genomewide",
-	out = "gxe_ipi_gd_gw"
+        out = "results/gwas/gxe_ipi_gd_gw"
     threads: 10
     shell:
         """
@@ -231,13 +235,13 @@ rule gxe_interaction_ipi_parameters12_gw:
           --pheno {input.pheno} \
           --pheno-name SVLEN_UL_DG \
           --covar {input.pheno} \
-          --covar-name IPI_corrected,PC1,PC2,PC3,PC4,PC5,PC6,PARITET_5,pgs,batch \
+          --covar-name IPI,PC1,PC2,PC3,PC4,PARITET_5 \
           --covar-variance-standardize \
           --glm interaction \
-          --parameters 1-11 \
+          --parameters 1-8 \
           --extract {input.high_qual} \
           --threads {threads} \
-	  --max-alleles 2 \
+          --max-alleles 2 \
           --out {params.out}
         """
 
