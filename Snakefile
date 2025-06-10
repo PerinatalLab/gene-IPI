@@ -237,7 +237,7 @@ rule gxe_interaction_ipi_parameters12_gw:
           --covar {input.pheno} \
           --covar-name IPI,PC1,PC2,PC3,PC4,PARITET_5 \
           --covar-variance-standardize \
-          --glm interaction \
+          --glm interaction cols=+a1freq\
           --parameters 1-8 \
           --extract {input.high_qual} \
           --threads {threads} \
