@@ -26,7 +26,8 @@ rule all:
         # batch corrected phenotype and covariates
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
         # GxE genomewide output for multiparous only
-        "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear"
+        "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
+        "results/gwas/regenie/gxe_ipi_gd_gw.SVLEN_UL_DG.regenie"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -157,7 +158,7 @@ rule remove_related:
         d['batch'] = d['batch'].str.replace(' ', '_')
         d.to_csv(output[0], sep='\t', index=False)
 	d= d[['#FID', 'IID_x', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']]
-	d.columns= ['#FID', 'IID', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']
+	d.columns= ['FID', 'IID', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']
 	d.to_csv(output[1], sep= '\t', header= True, index= False)
 
 # rule to remove batch effect from IPI and create IPI_corrected file
@@ -243,6 +244,42 @@ rule gxe_interaction_ipi_parameters12_gw:
           --threads {threads} \
           --max-alleles 2 \
           --out {params.out}
+        """
+
+# 
+rule gxe_interaction_ipi_parameters12_gw_regenie:
+    input:
+        pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
+        pvar = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pvar",
+        psam = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.psam",
+        keep = "results/phenotype/IDs_extract_multiparous.txt",
+        pheno = "results/final_phenotype/IPI_GWAS_gxe_multiparous.txt",
+        high_qual = "high_qual_snps.txt",
+    output:
+        "results/gwas/regenie/gxe_ipi_gd_gw.SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_gd_gw.log"
+    params:
+        pfile = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined",
+        out = "results/gwas/regenie/gxe_ipi_gd_gw"
+    shell:
+        """
+        ./regenie_v4.1.gz_x86_64_Linux \
+        --step 2 \
+        --pgen {params.pfile} \
+        --covarFile {input.pheno} \
+        --phenoFile {input.pheno} \
+        --keep {input.keep} \
+        --phenoCol SVLEN_UL_DG \
+        --interaction IPI \
+        --covarColList IPI,PC1,PC2,PC3,PC4,PARITET_5,batch \
+        --catCovarList batch \
+        --extract {input.high_qual} \
+        --bsize 1000 \
+        --threads 20 \
+        --ignore-pred \
+        --out {params.out} \
+        --verbose \
+        --no-condtl
         """
 
 # this sends a message to Agnes:: did she save the world or not?
