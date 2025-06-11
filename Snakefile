@@ -22,7 +22,7 @@ rule all:
         # CEU-qc phenotype + PGS 
         expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=parity_names),
         # final phenotype + covariates        
-#        expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
+        #expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
         # batch corrected phenotype and covariates
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
         # GxE genomewide output for multiparous only
@@ -96,6 +96,7 @@ rule calculate_pgs:
           --nonfounders \
           --out {params.out} > {output.log} 2>&1
         """
+
 # function to identify and remove related individuals based on kinship coefficients
 def selectUnrelated(input_kin, df, x):
         kin= pd.read_csv(input_kin, header= 0, sep= '\t')
@@ -157,9 +158,9 @@ rule remove_related:
         d['batch'].replace(batches_dict, inplace=True)
         d['batch'] = d['batch'].str.replace(' ', '_')
         d.to_csv(output[0], sep='\t', index=False)
-	d= d[['#FID', 'IID_x', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']]
-	d.columns= ['FID', 'IID', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']
-	d.to_csv(output[1], sep= '\t', header= True, index= False)
+	d = d[['#FID', 'IID_x', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']]
+	d.columns = ['FID', 'IID', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']
+	d.to_csv(output[1], sep= '\t', header=True, index=False)
 
 # rule to remove batch effect from IPI and create IPI_corrected file
 rule correct_ipi_batch:
