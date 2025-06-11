@@ -27,7 +27,7 @@ rule all:
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
         # GxE genomewide output for multiparous only
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
-        "results/gwas/regenie/gxe_ipi_gd_gw.SVLEN_UL_DG.regenie"
+        "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -212,7 +212,7 @@ rule prepare_gxe_genomewide_data:
           --out results/gwas/moba_common_qc_ipi_multiparous_genomewide > {log} 2>&1
         """
 
-# rule to run genome-wide GxE interaction analysis
+# rule to run genome-wide GxE interaction analysis using PLINK2
 rule gxe_interaction_ipi_parameters12_gw:
     input:
         pgen = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pgen",
@@ -246,7 +246,7 @@ rule gxe_interaction_ipi_parameters12_gw:
           --out {params.out}
         """
 
-# 
+# rule to run genome-wide GxE interaction analysis using Regenie
 rule gxe_interaction_ipi_parameters12_gw_regenie:
     input:
         pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
@@ -256,7 +256,7 @@ rule gxe_interaction_ipi_parameters12_gw_regenie:
         pheno = "results/final_phenotype/IPI_GWAS_gxe_multiparous.txt",
         high_qual = "high_qual_snps.txt",
     output:
-        "results/gwas/regenie/gxe_ipi_gd_gw.SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_ipi_gd_gw.log"
     params:
         pfile = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined",
@@ -293,6 +293,6 @@ onsuccess:
 onerror:
     shell("""
         curl -X POST -H 'Content-type: application/json' \
-        --data '{{"text":"Snakemake pipeline failed on rule {rule}."}}' \
+        --data '{{"text":"Snakemake pipeline failed."}}' \
         https://hooks.slack.com/services/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
     """)
