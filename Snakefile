@@ -278,6 +278,8 @@ rule gxe_interaction_ipi_parameters12_gw_regenie:
         --bsize 1000 \
         --threads 20 \
         --ignore-pred \
+        --rare-mac 100 \
+        --minMAC 100 \
         --out {params.out} \
         --verbose \
         --no-condtl
