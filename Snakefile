@@ -26,8 +26,9 @@ rule all:
         # batch corrected phenotype and covariates
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
         # GxE genomewide output for multiparous only
-        "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
-        "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie"
+        #"results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
+        "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -142,8 +143,8 @@ rule remove_related:
         "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/batch/moba_genotypes_2024.12.03_batches",
         "resources/batches.json"
     output:
-        "results/final_phenotype/IPI_pgs_covariates_{parity}.txt",
-	"results/final_phenotype/IPI_GWAS_gxe_{parity}.txt"
+        "results/final_phenotype/pgs_covariates_{parity}.txt",
+	"results/final_phenotype/GWAS_gxe_{parity}.txt"
     run:
         d = pd.read_csv(input[0])
         remove = selectUnrelated(input[1], d, d.SENTRIX_ID)
@@ -158,16 +159,17 @@ rule remove_related:
         d['batch'].replace(batches_dict, inplace=True)
         d['batch'] = d['batch'].str.replace(' ', '_')
         d.to_csv(output[0], sep='\t', index=False)
-	d = d[['#FID', 'IID_x', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']]
-	d.columns = ['FID', 'IID', 'SVLEN_UL_DG', 'IPI', 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']
+        outcome = 'miscarriage' if wildcards.parity == 'nulliparous' else 'IPI'
+        d = d[['#FID', 'IID_x', 'SVLEN_UL_DG', outcome, 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']]
+	d.columns = ['FID', 'IID', 'SVLEN_UL_DG', outcome, 'PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'batch', 'PARITET_5']
 	d.to_csv(output[1], sep= '\t', header=True, index=False)
 
 # rule to remove batch effect from IPI and create IPI_corrected file
 rule correct_ipi_batch:
     input:
-        "results/final_phenotype/IPI_pgs_covariates_multiparous.txt"
+        "results/final_phenotype/pgs_covariates_multiparous.txt"
     output:
-        "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt"
+        "results/final_phenotype/pgs_covariates_multiparous_corrected.txt"
     script:
         "scripts/correct_ipi_batch.R"
 
@@ -220,7 +222,7 @@ rule gxe_interaction_ipi_parameters12_gw:
         pvar = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
         psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         keep = "results/phenotype/IDs_extract_multiparous.txt",
-        pheno = "results/final_phenotype/IPI_GWAS_gxe_multiparous.txt",
+        pheno = "results/final_phenotype/GWAS_gxe_multiparous.txt",
         high_qual = "high_qual_snps.txt",
     output:
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
@@ -254,7 +256,7 @@ rule gxe_interaction_ipi_parameters12_gw_regenie:
         pvar = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pvar",
         psam = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.psam",
         keep = "results/phenotype/IDs_extract_multiparous.txt",
-        pheno = "results/final_phenotype/IPI_GWAS_gxe_multiparous.txt",
+        pheno = "results/final_phenotype/GWAS_gxe_multiparous.txt",
         high_qual = "high_qual_snps.txt",
     output:
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
@@ -273,6 +275,43 @@ rule gxe_interaction_ipi_parameters12_gw_regenie:
         --phenoCol SVLEN_UL_DG \
         --interaction IPI \
         --covarColList IPI,PC1,PC2,PC3,PC4,PARITET_5,batch \
+        --catCovarList batch \
+        --extract {input.high_qual} \
+        --bsize 1000 \
+        --threads 20 \
+        --ignore-pred \
+        --rare-mac 100 \
+        --minMAC 100 \
+        --out {params.out} \
+        --verbose \
+        --no-condtl
+        """
+# rule to run genome-wide GxE interaction analysis using Regenie
+rule gxe_interaction_miscarriage_parameters12_gw_regenie:
+    input:
+        pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
+        pvar = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pvar",
+        psam = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.psam",
+        keep = "results/phenotype/IDs_extract_nulliparous.txt",
+        pheno = "results/final_phenotype/GWAS_gxe_nulliparous.txt",
+        high_qual = "high_qual_snps.txt",
+    output:
+        "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_miscarriage_gd_gw.log"
+    params:
+        pfile = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined",
+        out = "results/gwas/regenie/gxe_miscarriage_gd_gw"
+    shell:
+        """
+        ./regenie_v4.1.gz_x86_64_Linux \
+        --step 2 \
+        --pgen {params.pfile} \
+        --covarFile {input.pheno} \
+        --phenoFile {input.pheno} \
+        --keep {input.keep} \
+        --phenoCol SVLEN_UL_DG \
+        --interaction miscarriage \
+        --covarColList miscarriage,PC1,PC2,PC3,PC4,batch \
         --catCovarList batch \
         --extract {input.high_qual} \
         --bsize 1000 \
