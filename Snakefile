@@ -28,7 +28,8 @@ rule all:
         # GxE genomewide output for multiparous only
         #"results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
-        "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie"
+        "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie",
+	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names)
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -323,6 +324,85 @@ rule gxe_interaction_miscarriage_parameters12_gw_regenie:
         --verbose \
         --no-condtl
         """
+
+rule extract_gxe_SNPs:
+	'Extract GxE significant SNPs from PLINK file and convert to vcf.'
+	input:
+		phgen= '/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen',
+		snps= '{parity}-SNP.txt',
+		ids= 'results/phenotype/IDs_extract_{parity}.txt'
+	output:
+		vcf= 'results/vcf/{parity}.vcf',
+	params:
+		pfile='/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined',
+		outfile= 'results/vcf/{parity}'
+	shell:
+		'''
+		plink2 \
+		--pfile {params.pfile} \
+		--keep {input.ids} \
+		--export vcf-4.2 vcf-dosage=DS-only \
+		--extract {input.snps} \
+		--out {params.outfile} \
+		--threads 10
+		'''
+rule extract_sample_ids:
+	'Exctact sample IDs.'
+	input:
+		'results/vcf/{parity}.vcf'
+	output:
+		'results/txt/aux/ids-{parity}.txt'
+	shell:
+		'''
+		bcftools query -l {input[0]} > {output[0]}
+		'''
+
+rule vcf_to_txt:
+	'Generate a txt file for importing in R.'
+	input:
+		'results/vcf/{parity}.vcf'
+	output:
+		'results/txt/{parity}.txt'
+	shell:
+		'''
+		bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%DS]\n' {input[0]} -o {output[0]}
+		'''
+
+rule add_header_txt:
+	''
+	input:
+		'results/txt/aux/ids-{parity}.txt',
+		'results/txt/{parity}.txt'
+	output:
+		'results/single-variants/transposed-{parity}.txt'
+	run:
+		cols= ['chr','pos','ref','eff'] + [line.strip() for line in open(input[0], 'r')]
+		d= pd.read_csv(input[1], header= None, names= cols, sep= '\t')
+		df= d.iloc[:, 4:].T.reset_index()
+		snp_names= 'chr' + d.chr.apply(str) + '_' + d.pos.apply(str) + '_' + d.ref + '_' + d.eff
+		df.columns= ['sentrixID'] + snp_names.values.tolist()
+		df.drop_duplicates(subset= 'sentrixID', keep= 'first', inplace = True)
+		df.to_csv(output[0], sep= '\t', header= True, index= False)
+
+rule merge_snp_pheno:
+	'Merge individual SNPs with phenotype data.'
+	input:
+		pheno='results/final_phenotype/GWAS_gxe_{parity}.txt',
+		snp='results/single-variants/transposed-{parity}.txt',
+	output:
+		out='results/singel-variants/final-SNP-pheno-{parity}.txt'
+	run:
+		pheno= pd.read_csv(input.pheno, header= 0, sep= '\t')
+		pheno['sentrixID']= pheno.FID + '_' + pheno.IID
+		snp= pd.read_csv(input.snp, header= 0, sep= '\t')
+		merged= pd.merge(pheno, snp, on= 'sentrixID')
+		merged.to_csv(output.out, header= True, sep= '\t', index= False)
+
+
+# rule to gxe IPI interaction MAF 0.05
+# rule to gxe IPI interaction MAF 0.01
+# rule to gxe miscarriage interaction MAF 0.05
+# rule to gxe miscarriage interaction MAF 0.01
 
 # this sends a message to Agnes:: did she save the world or not?
 onsuccess:
