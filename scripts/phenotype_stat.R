@@ -134,7 +134,7 @@ if (snakemake@wildcards[['parity']] == 'multiparous') {
 
   cleaned_data <- cleaned_data %>%
     filter(!is.na(DODFODTE_5), !is.na(SPABORT_12_5), !is.na(SPABORT_23_5))
-  
+  cleaned_data$miscarriage <- rowSums(cleaned_data[, c('SPABORT_12_5', 'SPABORT_23_5')], na.rm = T)
 }
 
 cleaned_data <- cleaned_data[!is.na(cleaned_data$'#FID'), ]
