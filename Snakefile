@@ -32,7 +32,7 @@ rule all:
 	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
         "results/summary/top_20_gxe_maf05.csv",
         "results/summary/regional_plot.png",
-        "results/summary/qq_plot.png
+        "results/summary/qq_plot.png"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
