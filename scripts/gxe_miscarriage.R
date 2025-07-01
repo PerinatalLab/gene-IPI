@@ -4,7 +4,8 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 
-df <- fread("~/scratch/agnes/gene-IPI/results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie")
+# df <- fread("~/scratch/agnes/gene-IPI/results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie")
+df <- fread(snakemake@input[[1]])
 
 # SNP × miscarriage
 gxe <- df %>%
@@ -85,7 +86,9 @@ cat("SNPs with P < 1e-6:", nrow(sig_1e6), "\n")
 # write.table(sig_1e6, "top_gxe_ipi_p1e6.txt", sep = "\t", quote = FALSE, row.names = FALSE)
 # write.table(sig_5e6, "top_gxe_ipi_p5e6.txt", sep = "\t", quote = FALSE, row.names = FALSE)
 # write.table(top_20, "top20_gxe_ipi_regenie.txt", sep = "\t", quote = FALSE, row.names = FALSE)
-write.csv(top_20, file = "~/scratch/agnes/gene-IPI/top_20_gxe_maf05.csv", row.names = FALSE)
+
+# write.csv(top_20, file = "~/scratch/agnes/gene-IPI/top_20_gxe_maf05.csv", row.names = FALSE)
+write.csv(top_20, file = snakemake@output[[1]], row.names = FALSE)
 
 summary(gxe_unique$BETA)
 sd(gxe_unique$BETA)
