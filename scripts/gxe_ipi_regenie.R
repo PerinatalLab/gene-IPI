@@ -64,6 +64,7 @@ gxe_qq <- gxe_unique %>%
     chisq = qchisq(pmax(1 - P, 1e-300), df = 1)
   )
 
+
 lambda_gc <- median(gxe_qq$chisq, na.rm = TRUE) / qchisq(0.5, df = 1)
 cat("Genomic control lambda:", round(lambda_gc, 3), "\n")
 
@@ -102,7 +103,7 @@ quantile(10^(-gxe_unique$LOG10P), probs = c(0.01, 0.05, 0.10))
 table(gxe_unique$LOG10P > 30)
 
 # lambda GC by MAF bins
-gxe_unique %>%
+p_lambda <- gxe_unique %>%
   mutate(MAF_bin = cut(MAF, breaks = seq(0.05, 0.5, by = 0.05))) %>%
   group_by(MAF_bin) %>%
   summarise(lambda = median(qchisq(pmax(1 - 10^(-LOG10P), 1e-300), df = 1)) / qchisq(0.5, df = 1)) %>%
@@ -111,6 +112,7 @@ gxe_unique %>%
   labs(title = "Lambda GC by MAF bin", y = expression(lambda), x = "MAF bin") +
   theme_bw()
 
+ggsave(filename = snakemake@output[["lambda_by_maf"]], plot = p_lambda, width = 8, height = 6)
 #file.show("~/scratch/agnes/gene-IPI/top_20_gxe_maf05.csv")
 
 
@@ -135,3 +137,21 @@ ggplot(gxe_unique, aes(x = P)) +
   labs(title = "Cumulative distribution of p-values (GxE SNP × IPI)",
        x = "P-value (log10 scale)", y = "Cumulative fraction") +
   theme_bw()
+
+ggsave(filename = snakemake@output[["hist_log10p"]], width = 8, height = 6)
+
+ggplot(gxe_unique, aes(x = P)) +
+  geom_histogram(bins = 60, fill = "lightblue", color = "black") +
+  scale_x_log10() +
+  labs(title = "Raw p-value distribution (GxE SNP × IPI)",
+       x = "P-value (log10 scale)", y = "Count") +
+  theme_bw()
+ggsave(filename = snakemake@output[["hist_pval"]], width = 8, height = 6)
+
+ggplot(gxe_unique, aes(x = P)) +
+  stat_ecdf(geom = "step", color = "lightblue") +
+  scale_x_log10() +
+  labs(title = "Cumulative distribution of p-values (GxE SNP × IPI)",
+       x = "P-value (log10 scale)", y = "Cumulative fraction") +
+  theme_bw()
+ggsave(filename = snakemake@output[["ecdf_pval"]], width = 8, height = 6)
