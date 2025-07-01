@@ -32,7 +32,10 @@ rule all:
 	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
         "results/summary/top_20_gxe_maf05.csv",
         "results/summary/regional_plot.png",
-        "results/summary/qq_plot.png"
+        "results/summary/qq_plot.png",
+        "results/summary/ipi_regenie_top_20_gxe_maf05.csv",
+        "results/summary/ipi_regional_plot.png",
+        "results/summary/ipi_qq_plot.png"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -403,7 +406,17 @@ rule merge_snp_pheno:
 
 
 # rule to gxe IPI interaction MAF 0.05
-# rule to gxe IPI interaction MAF 0.01
+rule gxe_ipi_summary_maf05:
+    input:
+        regenie_output = "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie"
+    output:
+        top20 = "results/summary/ipi_regenie_top_20_gxe_maf05.csv",
+        regional_plot = "results/summary/ipi_regional_plot.png",
+        qq_plot = "results/summary/ipi_qq_plot.png"
+    script:
+        "scripts/gxe_ipi_summary_maf05.R"
+
+
 # rule to gxe miscarriage interaction MAF 0.05
 rule gxe_miscarriage_summary_maf05:
     input:
@@ -416,7 +429,7 @@ rule gxe_miscarriage_summary_maf05:
         "scripts/gxe_miscarriage.R"
 
 
-# rule to gxe miscarriage interaction MAF 0.01
+
 
 # this sends a message to Agnes:: did she save the world or not?
 onsuccess:
