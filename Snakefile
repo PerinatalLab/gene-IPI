@@ -29,8 +29,10 @@ rule all:
         #"results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie",
-	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names)
-        "results/summarytop_20_gxe_maf05.csv"
+	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
+        "results/summary/top_20_gxe_maf05.csv",
+        "results/summary/regional_plot.png",
+        "results/summary/qq_plot.png
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -407,12 +409,14 @@ rule gxe_miscarriage_summary_maf05:
     input:
         regenie_output = "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie"
     output:
-        top20 = "results/summary/top_20_gxe_maf05.csv"
+        top20 = "results/summary/top_20_gxe_maf05.csv",
+        regional_plot = "results/summary/regional_plot.png",
+        qq_plot = "results/summary/qq_plot.png"
     params:
         script = "scripts/gxe_miscarriage_summary_maf05.R"
     shell:
         """
-        Rscript {params.script} {input.regenie_output} {output.top20}
+        Rscript {params.script} {input.regenie_output} {output.top20} {output.regional_plot} {output.qq_plot}
         """
 
 
