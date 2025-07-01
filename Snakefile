@@ -30,6 +30,7 @@ rule all:
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie",
 	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names)
+        "results/summarytop_20_gxe_maf05.csv"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -402,6 +403,19 @@ rule merge_snp_pheno:
 # rule to gxe IPI interaction MAF 0.05
 # rule to gxe IPI interaction MAF 0.01
 # rule to gxe miscarriage interaction MAF 0.05
+rule gxe_miscarriage_summary_maf05:
+    input:
+        regenie_output = "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie"
+    output:
+        top20 = "results/summary/top_20_gxe_maf05.csv"
+    params:
+        script = "scripts/gxe_miscarriage_summary_maf05.R"
+    shell:
+        """
+        Rscript {params.script} {input.regenie_output} {output.top20}
+        """
+
+
 # rule to gxe miscarriage interaction MAF 0.01
 
 # this sends a message to Agnes:: did she save the world or not?
