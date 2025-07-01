@@ -53,6 +53,16 @@ plot(region$GENPOS, region$LOG10P,
      pch = 20, col = "blue")
 abline(v = top_hit$GENPOS, col = "red", lty = 2)
 
+# 
+#png("regional_plot.png", width = 800, height = 600)
+png(filename = snakemake@output[[2]], width = 800, height = 600)
+plot(region$GENPOS, region$LOG10P,
+     main = paste("Region around", top_hit$ID),
+     xlab = "Position", ylab = "-log10(P)",
+     pch = 20, col = "blue")
+abline(v = top_hit$GENPOS, col = "red", lty = 2)
+dev.off()
+
 # QQ plot components + lambda GC
 gxe_qq <- gxe_unique %>%
   arrange(P) %>%
@@ -74,6 +84,10 @@ ggplot(gxe_qq, aes(x = expected, y = observed)) +
     x = "Expected -log10(P)", y = "Observed -log10(P)"
   ) +
   theme_bw()
+
+
+#ggsave("qq_plot.png", width = 8, height = 6)
+ggsave(filename = snakemake@output[[3]], plot = last_plot(), width = 8, height = 6)
 
 # significant SNPs
 sig_5e6 <- gxe_unique %>% filter(LOG10P > -log10(5e-6))
