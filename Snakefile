@@ -418,7 +418,11 @@ rule gxe_ipi_summary_maf05:
     output:
         top20 = "results/summary/ipi_regenie_top_20_gxe_maf05.csv",
         regional_plot = "results/summary/ipi_regional_plot.png",
-        qq_plot = "results/summary/ipi_qq_plot.png"
+        qq_plot = "results/summary/ipi_qq_plot.png",
+        hist_log10p = "results/summary/ipi_hist_log10p.png",
+        hist_pval = "results/summary/ipi_hist_pval_logscale.png",
+        ecdf_pval = "results/summary/ipi_ecdf_pval.png",
+        lambda_by_maf = "results/summary/ipi_lambda_by_mafbin.png"
     script:
         "scripts/gxe_ipi_regenie.R"
 
@@ -431,10 +435,6 @@ rule gxe_miscarriage_summary_maf05:
         top20 = "results/summary/top_20_gxe_maf05.csv",
         regional_plot = "results/summary/regional_plot.png",
         qq_plot = "results/summary/qq_plot.png",
-        hist_log10p = "results/summary/ipi_hist_log10p.png",
-        hist_p = "results/summary/ipi_hist_pval_logscale.png",
-        ecdf_p = "results/summary/ipi_ecdf_pval.png",
-        lambda_by_maf = "results/summary/ipi_lambda_by_mafbin.png"
     script:
         "scripts/gxe_miscarriage.R"
 
