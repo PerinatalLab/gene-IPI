@@ -30,12 +30,18 @@ rule all:
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie",
 	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
+        # GxE summary outputs (Regenie, IPI)        
         "results/summary/top_20_gxe_maf05.csv",
         "results/summary/regional_plot.png",
+        # GxE summary outputs (Regenie, IPI)
         "results/summary/qq_plot.png",
         "results/summary/ipi_regenie_top_20_gxe_maf05.csv",
         "results/summary/ipi_regional_plot.png",
-        "results/summary/ipi_qq_plot.png"
+        "results/summary/ipi_qq_plot.png",
+        "results/summary/ipi_hist_log10p.png",
+        "results/summary/ipi_hist_pval_logscale.png",
+        "results/summary/ipi_ecdf_pval.png",
+        "results/summary/ipi_lambda_by_mafbin.png"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -424,7 +430,11 @@ rule gxe_miscarriage_summary_maf05:
     output:
         top20 = "results/summary/top_20_gxe_maf05.csv",
         regional_plot = "results/summary/regional_plot.png",
-        qq_plot = "results/summary/qq_plot.png"
+        qq_plot = "results/summary/qq_plot.png",
+        hist_log10p = "results/summary/ipi_hist_log10p.png",
+        hist_p = "results/summary/ipi_hist_pval_logscale.png",
+        ecdf_p = "results/summary/ipi_ecdf_pval.png",
+        lambda_by_maf = "results/summary/ipi_lambda_by_mafbin.png"
     script:
         "scripts/gxe_miscarriage.R"
 
