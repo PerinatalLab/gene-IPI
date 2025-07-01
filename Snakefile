@@ -412,12 +412,8 @@ rule gxe_miscarriage_summary_maf05:
         top20 = "results/summary/top_20_gxe_maf05.csv",
         regional_plot = "results/summary/regional_plot.png",
         qq_plot = "results/summary/qq_plot.png"
-    params:
-        script = "scripts/gxe_miscarriage_summary_maf05.R"
-    shell:
-        """
-        Rscript {params.script} {input.regenie_output} {output.top20} {output.regional_plot} {output.qq_plot}
-        """
+    script:
+        "scripts/gxe_miscarriage.R"
 
 
 # rule to gxe miscarriage interaction MAF 0.01
