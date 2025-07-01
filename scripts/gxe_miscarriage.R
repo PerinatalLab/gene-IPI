@@ -1,4 +1,4 @@
-# GxE miscarriage, regenie MAF 0.01
+# GxE miscarriage, regenie MAF 0.05
 
 library(data.table)
 library(dplyr)
@@ -13,7 +13,7 @@ gxe <- df %>%
     MAF = ifelse(A1FREQ > 0.5, 1 - A1FREQ, A1FREQ)
   ) %>%
   filter(
-    MAF >= 0.01, 
+    MAF >= 0.05, 
     abs(BETA) < 10
   ) %>%
   mutate(
