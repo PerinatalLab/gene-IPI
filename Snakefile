@@ -414,7 +414,7 @@ rule gxe_ipi_summary_maf05:
         regional_plot = "results/summary/ipi_regional_plot.png",
         qq_plot = "results/summary/ipi_qq_plot.png"
     script:
-        "scripts/gxe_ipi_summary_maf05.R"
+        "scripts/gxe_ipi_regenie.R"
 
 
 # rule to gxe miscarriage interaction MAF 0.05
