@@ -56,6 +56,7 @@ abline(v = top_hit$GENPOS, col = "red", lty = 2)
 # 
 #png("regional_plot.png", width = 800, height = 600)
 png(filename = snakemake@output[[2]], width = 800, height = 600)
+
 plot(region$GENPOS, region$LOG10P,
      main = paste("Region around", top_hit$ID),
      xlab = "Position", ylab = "-log10(P)",
