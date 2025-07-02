@@ -13,14 +13,15 @@ snp_cols <- grep("^chr[0-9XYM]+_[0-9]+_[ACGT]+_[ACGT]+$", names(df), value = TRU
 
 interaction_results <- data.frame()
 
-# interactions
+# interactions (additive model)
 for (snp in snp_cols) {
-  formula_str <- paste0("SVLEN_UL_DG ~ miscarriage_bin * as.factor(`", snp, "`)")
-  model <- try(lm(as.formula(formula_str), data = df), silent = TRUE)
+  df$SNP_dosage <- df[[snp]]  # additive coding: 0, 1, 2
+  
+  model <- try(lm(SVLEN_UL_DG ~ miscarriage_bin * SNP_dosage, data = df), silent = TRUE)
   
   if (!inherits(model, "try-error")) {
     res <- tidy(model) %>%
-      filter(grepl("miscarriage_bin:as.factor", term)) %>%
+      filter(term == "miscarriage_bin:SNP_dosage") %>%
       mutate(SNP = snp) %>%
       select(SNP, term, estimate, std.error, p.value)
     
