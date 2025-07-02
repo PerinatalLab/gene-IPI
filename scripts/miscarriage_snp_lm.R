@@ -1,4 +1,4 @@
-# miscarriage × SNP GxE interaction with plots
+# miscarriage × SNP GxE interaction with plots -- by additive model
 library(data.table)
 library(dplyr)
 library(ggplot2)
@@ -42,7 +42,7 @@ top_snps <- interaction_results %>%
 
 cat("Top SNPs (FDR < 0.1):", length(top_snps), "\n")
 
-# top SNPs 
+# top SNPs – descriptive plots
 for (snp in top_snps) {
   cat("\n\n=== SNP:", snp, "===\n")
   
@@ -102,41 +102,52 @@ for (snp in top_snps) {
   print(p_lm)
 }
 
-# summary barplot
-plot_data <- interaction_results %>%
-  filter(SNP %in% top_snps) %>%
-  mutate(Dosage = case_when(
-    grepl("as.factor\\(.*\\)1$", term) ~ "Het",
-    grepl("as.factor\\(.*\\)2$", term) ~ "HomAlt",
-    TRUE ~ NA_character_
-  )) %>%
-  filter(!is.na(Dosage))
+# summary table + barplot of dosage effects by miscarriage group
+summary_table <- data.frame()
 
-#
-if (nrow(plot_data) > 0) {
-  ggplot(plot_data, aes(x = SNP, y = estimate, fill = Dosage)) +
-    geom_col(position = position_dodge(width = 0.7), width = 0.6, alpha = 0.9) +
-    geom_errorbar(aes(
-      ymin = estimate - std.error * 1.96,
-      ymax = estimate + std.error * 1.96
-    ), position = position_dodge(width = 0.7), width = 0.2) +
-    labs(
-      title = "Interaction effect: miscarriage × SNP genotype",
-      x = NULL,
-      y = "Effect estimate (days)",
-      fill = "Genotype"
-    ) +
-    scale_fill_manual(
-      values = c("Het" = "orange", "HomAlt" = "tomato"),
-      labels = c("Het" = "Heterozygous (1)", "HomAlt" = "Homozygous Alt (2)")
-    ) +
-    theme_minimal(base_size = 13) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
-} else {
-  message("none")
+for (snp in top_snps) {
+  df$SNP_dosage <- df[[snp]]
+  model <- lm(SVLEN_UL_DG ~ miscarriage_bin * SNP_dosage, data = df)
+  coefs <- coef(summary(model))
+  
+  # baseline: miscarriage_bin == 0
+  beta_base <- coefs["SNP_dosage", "Estimate"]
+  
+  # interaction
+  interaction_row <- "miscarriage_bin:SNP_dosage"
+  if (interaction_row %in% rownames(coefs)) {
+    beta_int <- coefs[interaction_row, "Estimate"]
+    p_val <- coefs[interaction_row, "Pr(>|t|)"]
+    total_effect <- beta_base + beta_int
+    
+    summary_table <- rbind(summary_table, data.frame(
+      SNP = snp,
+      Group = c("No miscarriage", "Miscarriage"),
+      Effect = c(beta_base, total_effect),
+      p_value = c(NA, signif(p_val, 3))
+    ))
+  }
 }
 
+summary_table$Group <- factor(summary_table$Group, levels = c("No miscarriage", "Miscarriage"))
 
+# summary barplot (facet per SNP)
+p_summary <- ggplot(summary_table, aes(x = Group, y = Effect, fill = Group)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.6) +
+  geom_text(aes(label = round(Effect, 3)), vjust = -0.5, size = 3) +
+  facet_wrap(~ SNP, scales = "free_y") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Effect of SNP dosage on gestational duration",
+    subtitle = "Stratified by miscarriage history (additive G×E model)",
+    x = "Miscarriage group",
+    y = "Effect estimate (days)"
+  ) +
+  scale_fill_manual(values = c("No miscarriage" = "#a6cee3", "Miscarriage" = "#fb9a99")) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(face = "bold")
+  )
 
-
-
+print(p_summary)
