@@ -245,7 +245,7 @@ rule gxe_interaction_ipi_parameters12_gw:
         psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         keep = "results/phenotype/IDs_extract_multiparous.txt",
         pheno = "results/final_phenotype/GWAS_gxe_multiparous.txt",
-        high_qual = "high_qual_snps.txt",
+        high_qual = "high_qual_snps.txt"
     output:
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/gxe_ipi_gd_gw.log"
@@ -451,8 +451,8 @@ rule gxe_miscarriage_summary_maf05:
 # rule to create GWAS phenotype file for 2nd pregnancy GxE model
 rule create_gxe_2ndpreg_pheno:
     input:
-    ipi = "results/phenotype/ipi_first2births_multiparous.csv",
-    covar = "results/final_phenotype/pgs_covariates_multiparous.txt"
+        ipi = "results/phenotype/ipi_first2births_multiparous.csv",
+        covar = "results/final_phenotype/pgs_covariates_multiparous.txt"
     output:
         "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt"
     script:
