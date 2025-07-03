@@ -5,7 +5,7 @@ import json
 
 # defining the two parity groups: nulliparous (first pregnancy) and multiparous
 parity_names = ['nulliparous', 'multiparous', '2ndpreg']
-genotype_parity = ['nulliparous', 'multiparous']
+genotype_parity = ['nulliparous', 'multiparous', '2ndpreg']
 
 rule all:
     input:
