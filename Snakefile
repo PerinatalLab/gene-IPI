@@ -4,23 +4,25 @@ import numpy as np
 import json
 
 # defining the two parity groups: nulliparous (first pregnancy) and multiparous
-parity_names = ['nulliparous', 'multiparous']
+parity_names = ['nulliparous', 'multiparous', '2ndpreg']
+genotype_parity = ['nulliparous', 'multiparous']
+
 rule all:
     input:
         # Phenotype files according to parity
-        expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=parity_names),
+        expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=genotype_parity),
         # Genotype files according to parity (st)
-        expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
-        expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=parity_names),
-        expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=parity_names),
+        expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=genotype_parity),
+        expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=genotype_parity),
+        expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=genotype_parity),
         # Genomewide files for multiparous
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pgen",
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         # Polygenic scores
-        expand("results/pgs/ipi_pgs_{parity}.sscore", parity=parity_names),
+        expand("results/pgs/ipi_pgs_{parity}.sscore", parity=genotype_parity),
         # CEU-qc phenotype + PGS 
-        expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=parity_names),
+        expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=genotype_parity),
         # final phenotype + covariates        
         #expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
         # batch corrected phenotype and covariates
@@ -35,7 +37,7 @@ rule all:
         "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_ipi_2ndpreg.log",
         # Final merged SNP-dosage × pheno files
-	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
+	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= genotype_parity),
         # GxE summary outputs (Regenie, IPI)        
         "results/summary/top_20_gxe_maf05.csv",
         "results/summary/regional_plot.png",
@@ -50,7 +52,6 @@ rule all:
         # 2nd preg model Regenie 
         "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_ipi_2ndpreg.log"
-
 
 # rule to clean phenotype data and create ID lists for genotype filtering
 rule cleaned_data:
@@ -484,6 +485,23 @@ rule gxe_interaction_ipi_2ndpreg_regenie:
         --verbose \
         --no-condtl
         """
+
+
+# rule merge_snp_pheno_2ndpreg
+rule merge_snp_pheno_2ndpreg:
+    input:
+        pheno = "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt",
+        snp = "results/single-variants/transposed-2ndpreg.txt"
+    output:
+        out = "results/singel-variants/final-SNP-pheno-2ndpreg.txt"
+    run:
+        import pandas as pd
+        pheno = pd.read_csv(input.pheno, sep='\t')
+        pheno['sentrixID'] = pheno.FID + '_' + pheno.IID
+        snp = pd.read_csv(input.snp, sep='\t')
+        merged = pd.merge(pheno, snp, on='sentrixID')
+        merged.to_csv(output.out, sep='\t', index=False)
+
 
 # this sends a message to Agnes:: did she save the world or not?
 onsuccess:
