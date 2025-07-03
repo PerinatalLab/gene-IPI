@@ -9,7 +9,7 @@ rule all:
     input:
         # Phenotype files according to parity
         expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=parity_names),
-        i# Genotype files according to parity (st)
+        # Genotype files according to parity (st)
         expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
         expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=parity_names),
         expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=parity_names),
