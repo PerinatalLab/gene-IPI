@@ -37,7 +37,7 @@ rule all:
         "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_ipi_2ndpreg.log",
         # Final merged SNP-dosage × pheno files
-	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= genotype_parity),
+	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
         # GxE summary outputs (Regenie, IPI)        
         "results/summary/top_20_gxe_maf05.csv",
         "results/summary/regional_plot.png",
@@ -443,9 +443,20 @@ rule gxe_miscarriage_summary_maf05:
     output:
         top20 = "results/summary/top_20_gxe_maf05.csv",
         regional_plot = "results/summary/regional_plot.png",
-        qq_plot = "results/summary/qq_plot.png",
+        qq_plot = "results/summary/qq_plot.png"
     script:
         "scripts/gxe_miscarriage.R"
+
+
+# rule to create GWAS phenotype file for 2nd pregnancy GxE model
+rule create_gxe_2ndpreg_pheno:
+    input:
+    ipi = "results/phenotype/ipi_first2births_multiparous.csv",
+    covar = "results/final_phenotype/pgs_covariates_multiparous.txt"
+    output:
+        "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt"
+    script:
+        "scripts/2ndpreg_file_for_regenie.R"
 
 
 # rule gxe_interaction_ipi_2ndpreg_regenie
