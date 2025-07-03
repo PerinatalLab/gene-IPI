@@ -9,7 +9,7 @@ rule all:
     input:
         # Phenotype files according to parity
         expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=parity_names),
-        # Genotype files according to parity (st)
+        i# Genotype files according to parity (st)
         expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
         expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=parity_names),
         expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=parity_names),
@@ -25,15 +25,20 @@ rule all:
         #expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
         # batch corrected phenotype and covariates
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
+        # GxE phenotype files for 2n preg IPI model
+        "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt",
         # GxE genomewide output for multiparous only
         #"results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie",
+        # GxE genomewide output for 2nd pregnancy
+        "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_2ndpreg.log",
+        # Final merged SNP-dosage × pheno files
 	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
         # GxE summary outputs (Regenie, IPI)        
         "results/summary/top_20_gxe_maf05.csv",
         "results/summary/regional_plot.png",
-        # GxE summary outputs (Regenie, IPI)
         "results/summary/qq_plot.png",
         "results/summary/ipi_regenie_top_20_gxe_maf05.csv",
         "results/summary/ipi_regional_plot.png",
@@ -41,7 +46,10 @@ rule all:
         "results/summary/ipi_hist_log10p.png",
         "results/summary/ipi_hist_pval_logscale.png",
         "results/summary/ipi_ecdf_pval.png",
-        "results/summary/ipi_lambda_by_mafbin.png"
+        "results/summary/ipi_lambda_by_mafbin.png",
+        # 2nd preg model Regenie 
+        "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_2ndpreg.log"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
