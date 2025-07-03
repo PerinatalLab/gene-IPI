@@ -262,7 +262,7 @@ rule gxe_interaction_ipi_parameters12_gw:
           --out {params.out}
         """
 
-# rule to run genome-wide GxE interaction analysis using Regenie
+# rule to run genome-wide GxE interaction analysis using Regenie on IPI
 rule gxe_interaction_ipi_parameters12_gw_regenie:
     input:
         pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
@@ -299,7 +299,7 @@ rule gxe_interaction_ipi_parameters12_gw_regenie:
         --verbose \
         --no-condtl
         """
-# rule to run genome-wide GxE interaction analysis using Regenie
+# rule to run genome-wide GxE interaction analysis using Regenie on miscarriage
 rule gxe_interaction_miscarriage_parameters12_gw_regenie:
     input:
         pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
@@ -439,7 +439,43 @@ rule gxe_miscarriage_summary_maf05:
         "scripts/gxe_miscarriage.R"
 
 
-
+# rule gxe_interaction_ipi_2ndpreg_regenie
+rule gxe_interaction_ipi_2ndpreg_regenie:
+    input:
+        pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
+        pvar = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pvar",
+        psam = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.psam",
+        keep = "results/phenotype/IDs_extract_multiparous.txt",
+        pheno = "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt",
+        high_qual = "high_qual_snps.txt"
+    output:
+        "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_2ndpreg.log"
+    params:
+        pfile = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined",
+        out = "results/gwas/regenie/gxe_ipi_2ndpreg"
+    shell:
+        """
+        ./regenie_v4.1.gz_x86_64_Linux \
+        --step 2 \
+        --pgen {params.pfile} \
+        --covarFile {input.pheno} \
+        --phenoFile {input.pheno} \
+        --keep {input.keep} \
+        --phenoCol SVLEN_UL_DG \
+        --interaction IPI \
+        --covarColList IPI,PC1,PC2,PC3,PC4,PC5,PC6,batch \
+        --catCovarList batch \
+        --extract {input.high_qual} \
+        --bsize 1000 \
+        --threads 20 \
+        --ignore-pred \
+        --rare-mac 100 \
+        --minMAC 100 \
+        --out {params.out} \
+        --verbose \
+        --no-condtl
+        """
 
 # this sends a message to Agnes:: did she save the world or not?
 onsuccess:
