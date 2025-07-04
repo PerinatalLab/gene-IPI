@@ -139,6 +139,11 @@ if (snakemake@wildcards[['parity']] == 'multiparous') {
 
 cleaned_data <- cleaned_data[!is.na(cleaned_data$'#FID'), ]
 
+print(colnames(cleaned_data))
+
+
+
+
 write.csv(cleaned_data,snakemake@output[[1]], row.names = FALSE)
 
 cleaned_data= cleaned_data[, c("#FID", "SENTRIX_ID")]
