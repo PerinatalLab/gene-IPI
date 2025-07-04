@@ -10,34 +10,37 @@ genotype_parity = ['nulliparous', 'multiparous', '2ndpreg']
 rule all:
     input:
         # Phenotype files according to parity
-        expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=parity_names),
+        expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=genotype_parity),
         # Genotype files according to parity (st)
-        expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
-        expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=parity_names),
-        expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=parity_names),
-        "results/phenotype/IDs_extract_2ndpreg.txt",
-        "results/phenotype/ipi_first2births_multiparous.csv",
+        expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=genotype_parity),
+        expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=genotype_parity),
+        expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=genotype_parity),
         # Genomewide files for multiparous
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pgen",
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         # Polygenic scores
-        expand("results/pgs/ipi_pgs_{parity}.sscore", parity=parity_names),
+        expand("results/pgs/ipi_pgs_{parity}.sscore", parity=genotype_parity),
         # CEU-qc phenotype + PGS 
-        expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=parity_names),
+        expand("results/phenotype/pheno_pgs_unique_{parity}.csv", parity=genotype_parity),
         # final phenotype + covariates        
         #expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
         # batch corrected phenotype and covariates
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
+        # GxE phenotype files for 2n preg IPI model
+        "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt",
         # GxE genomewide output for multiparous only
         #"results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
         "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie",
+        # GxE genomewide output for 2nd pregnancy
+        "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_2ndpreg.log",
+        # Final merged SNP-dosage × pheno files
 	expand("results/singel-variants/final-SNP-pheno-{parity}.txt", parity= parity_names),
         # GxE summary outputs (Regenie, IPI)        
         "results/summary/top_20_gxe_maf05.csv",
         "results/summary/regional_plot.png",
-        # GxE summary outputs (Regenie, IPI)
         "results/summary/qq_plot.png",
         "results/summary/ipi_regenie_top_20_gxe_maf05.csv",
         "results/summary/ipi_regional_plot.png",
@@ -45,8 +48,10 @@ rule all:
         "results/summary/ipi_hist_log10p.png",
         "results/summary/ipi_hist_pval_logscale.png",
         "results/summary/ipi_ecdf_pval.png",
-        "results/summary/ipi_lambda_by_mafbin.png"
-
+        "results/summary/ipi_lambda_by_mafbin.png",
+        # 2nd preg model Regenie 
+        "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_2ndpreg.log"
 
 # rule to clean phenotype data and create ID lists for genotype filtering
 rule cleaned_data:
@@ -240,7 +245,7 @@ rule gxe_interaction_ipi_parameters12_gw:
         psam = "results/gwas/moba_common_qc_ipi_multiparous_genomewide.psam",
         keep = "results/phenotype/IDs_extract_multiparous.txt",
         pheno = "results/final_phenotype/GWAS_gxe_multiparous.txt",
-        high_qual = "high_qual_snps.txt",
+        high_qual = "high_qual_snps.txt"
     output:
         "results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/gxe_ipi_gd_gw.log"
@@ -266,7 +271,7 @@ rule gxe_interaction_ipi_parameters12_gw:
           --out {params.out}
         """
 
-# rule to run genome-wide GxE interaction analysis using Regenie
+# rule to run genome-wide GxE interaction analysis using Regenie on IPI
 rule gxe_interaction_ipi_parameters12_gw_regenie:
     input:
         pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
@@ -303,7 +308,7 @@ rule gxe_interaction_ipi_parameters12_gw_regenie:
         --verbose \
         --no-condtl
         """
-# rule to run genome-wide GxE interaction analysis using Regenie
+# rule to run genome-wide GxE interaction analysis using Regenie on miscarriage
 rule gxe_interaction_miscarriage_parameters12_gw_regenie:
     input:
         pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
@@ -438,29 +443,75 @@ rule gxe_miscarriage_summary_maf05:
     output:
         top20 = "results/summary/top_20_gxe_maf05.csv",
         regional_plot = "results/summary/regional_plot.png",
-        qq_plot = "results/summary/qq_plot.png",
+        qq_plot = "results/summary/qq_plot.png"
     script:
         "scripts/gxe_miscarriage.R"
 
 
-# rule extract_genotype_2ndpreg
-rule extract_genotype_2ndpreg:
+# rule to create GWAS phenotype file for 2nd pregnancy GxE model
+rule create_gxe_2ndpreg_pheno:
     input:
-        base_pgen = "results/gwas/moba_common_qc.pgen",
-        base_pvar = "results/gwas/moba_common_qc.pvar",
-        base_psam = "results/gwas/moba_common_qc.psam",
-        keep_ids = "results/phenotype/IDs_extract_2ndpreg.txt"
+        ipi = "results/phenotype/ipi_first2births_multiparous.csv",
+        covar = "results/final_phenotype/pgs_covariates_multiparous.txt"
     output:
-        pgen = "results/gwas/moba_common_qc_ipi_2ndpreg.pgen",
-        pvar = "results/gwas/moba_common_qc_ipi_2ndpreg.pvar",
-        psam = "results/gwas/moba_common_qc_ipi_2ndpreg.psam"
+        "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt"
+    script:
+        "scripts/2ndpreg_file_for_regenie.R"
+
+
+# rule gxe_interaction_ipi_2ndpreg_regenie
+rule gxe_interaction_ipi_2ndpreg_regenie:
+    input:
+        pgen = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pgen",
+        pvar = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.pvar",
+        psam = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.psam",
+        keep = "results/phenotype/IDs_extract_multiparous.txt",
+        pheno = "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt",
+        high_qual = "high_qual_snps.txt"
+    output:
+        "results/gwas/regenie/gxe_ipi_2ndpreg_SVLEN_UL_DG.regenie",
+        "results/gwas/regenie/gxe_ipi_2ndpreg.log"
+    params:
+        pfile = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined",
+        out = "results/gwas/regenie/gxe_ipi_2ndpreg"
     shell:
         """
-        plink2 --pfile results/gwas/moba_common_qc \
-               --keep {input.keep_ids} \
-               --make-pgen \
-               --out results/gwas/moba_common_qc_ipi_2ndpreg
+        ./regenie_v4.1.gz_x86_64_Linux \
+        --step 2 \
+        --pgen {params.pfile} \
+        --covarFile {input.pheno} \
+        --phenoFile {input.pheno} \
+        --keep {input.keep} \
+        --phenoCol SVLEN_UL_DG \
+        --interaction IPI \
+        --covarColList IPI,PC1,PC2,PC3,PC4,PC5,PC6,batch \
+        --catCovarList batch \
+        --extract {input.high_qual} \
+        --bsize 1000 \
+        --threads 20 \
+        --ignore-pred \
+        --rare-mac 100 \
+        --minMAC 100 \
+        --out {params.out} \
+        --verbose \
+        --no-condtl
         """
+
+
+# rule merge_snp_pheno_2ndpreg
+rule merge_snp_pheno_2ndpreg:
+    input:
+        pheno = "results/final_phenotype/GWAS_gxe_multiparous_2ndpreg.txt",
+        snp = "results/single-variants/transposed-2ndpreg.txt"
+    output:
+        out = "results/singel-variants/final-SNP-pheno-2ndpreg.txt"
+    run:
+        import pandas as pd
+        pheno = pd.read_csv(input.pheno, sep='\t')
+        pheno['sentrixID'] = pheno.FID + '_' + pheno.IID
+        snp = pd.read_csv(input.snp, sep='\t')
+        merged = pd.merge(pheno, snp, on='sentrixID')
+        merged.to_csv(output.out, sep='\t', index=False)
 
 
 # this sends a message to Agnes:: did she save the world or not?
