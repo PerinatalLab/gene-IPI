@@ -4,7 +4,9 @@ import numpy as np
 import json
 
 # defining the two parity groups: nulliparous (first pregnancy) and multiparous
-parity_names = ['nulliparous', 'multiparous']
+parity_names = ['nulliparous', 'multiparous', '2ndpreg']
+genotype_parity = ['nulliparous', 'multiparous', '2ndpreg']
+
 rule all:
     input:
         # Phenotype files according to parity
@@ -13,6 +15,8 @@ rule all:
         expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
         expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=parity_names),
         expand("results/gwas/moba_common_qc_ipi_{parity}.psam", parity=parity_names),
+        "results/phenotype/IDs_extract_2ndpreg.txt",
+        "results/phenotype/ipi_first2births_multiparous.csv",
         # Genomewide files for multiparous
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pgen",
         "results/gwas/moba_common_qc_ipi_multiparous_genomewide.pvar",
@@ -439,6 +443,24 @@ rule gxe_miscarriage_summary_maf05:
         "scripts/gxe_miscarriage.R"
 
 
+# rule extract_genotype_2ndpreg
+rule extract_genotype_2ndpreg:
+    input:
+        base_pgen = "results/gwas/moba_common_qc.pgen",
+        base_pvar = "results/gwas/moba_common_qc.pvar",
+        base_psam = "results/gwas/moba_common_qc.psam",
+        keep_ids = "results/phenotype/IDs_extract_2ndpreg.txt"
+    output:
+        pgen = "results/gwas/moba_common_qc_ipi_2ndpreg.pgen",
+        pvar = "results/gwas/moba_common_qc_ipi_2ndpreg.pvar",
+        psam = "results/gwas/moba_common_qc_ipi_2ndpreg.psam"
+    shell:
+        """
+        plink2 --pfile results/gwas/moba_common_qc \
+               --keep {input.keep_ids} \
+               --make-pgen \
+               --out results/gwas/moba_common_qc_ipi_2ndpreg
+        """
 
 
 # this sends a message to Agnes:: did she save the world or not?
