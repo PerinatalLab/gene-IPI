@@ -25,6 +25,7 @@ rule all:
         #expand("results/final_phenotype/IPI_pgs_covariates_{parity}.txt", parity=parity_names),
         # batch corrected phenotype and covariates
         "results/final_phenotype/IPI_pgs_covariates_multiparous_corrected.txt",
+        "results/final_phenotype/GWAS_gxe_2ndpreg.txt",
         # GxE genomewide output for multiparous only
         #"results/gwas/gxe_ipi_gd_gw.SVLEN_UL_DG.glm.linear",
         "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie",
@@ -438,6 +439,15 @@ rule gxe_miscarriage_summary_maf05:
     script:
         "scripts/gxe_miscarriage.R"
 
+
+# create_gwas_gxe_2ndpreg
+rule create_gwas_gxe_2ndpreg:
+    input:
+        "results/final_phenotype/GWAS_gxe_multiparous.txt"
+    output:
+        "results/final_phenotype/GWAS_gxe_2ndpreg.txt"
+    script:
+        "scripts/filter_2ndpreg_from_multiparous.R"
 
 
 
