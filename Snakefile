@@ -9,6 +9,7 @@ rule all:
     input:
         # Phenotype files according to parity
         expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=parity_names),
+        "results/phenotype/IDs_extract_2ndpreg.txt",
         # Genotype files according to parity (st)
         expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
         expand("results/gwas/moba_common_qc_ipi_{parity}.pvar", parity=parity_names),
@@ -451,6 +452,21 @@ rule create_gwas_gxe_2ndpreg:
         "scripts/filter_2ndpreg_from_multiparous.R"
 
 
+rule create_2ndpreg_ids:
+    input:
+        pheno = "results/phenotype/filtered_pregnancies_2ndpreg.csv",
+        psam = "/mnt/scratch/moba/HDGB-MoBaGenetics/2024.12.03/geno/moba_genotypes_2024.12.03_common_no_multiallelic_joined.psam"
+    output:
+        "results/phenotype/IDs_extract_2ndpreg.txt"
+    run:
+        import pandas as pd
+        df = pd.read_csv(input.pheno)
+        psam = pd.read_csv(input.psam, delim_whitespace=True)
+        ids = set(psam["IID"])
+        matched = df[df["SENTRIX_ID"].isin(ids)]["SENTRIX_ID"].drop_duplicates()
+        with open(output[0], "w") as f:
+            for i in sorted(matched):
+                f.write(f"{i} {i}\n")
 
 rule gxe_interaction_ipi_2ndpreg_regenie:
     input:
