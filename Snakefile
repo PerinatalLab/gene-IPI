@@ -9,6 +9,7 @@ rule all:
     input:
         # Phenotype files according to parity
         expand("results/phenotype/filtered_pregnancies_{parity}.csv", parity=parity_names),
+        "results/phenotype/filtered_pregnancies_2ndpreg.csv",
         "results/phenotype/IDs_extract_2ndpreg.txt",
         # Genotype files according to parity (st)
         expand("results/gwas/moba_common_qc_ipi_{parity}.pgen", parity=parity_names),
@@ -59,6 +60,18 @@ rule all:
 #        "results/phenotype/IDs_extract_{parity}.txt"
 #    script:
 #        "scripts/phenotype_stat.R"
+
+rule create_filtered_2ndpreg:
+    input:
+        mfr = "/mnt/scratch/agnes/PDB1724_MFR_541_v12.csv",
+        mapping = "/mnt/scratch/agnes/parental_ID_to_PREG_ID.csv",
+        linkage = "/mnt/work/p1724/v12/linkage_Mother_PDB1724.csv",
+        psam = "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam"
+    output:
+        "results/phenotype/filtered_pregnancies_2ndpreg.csv"
+    script:
+        "scripts/2ndpreg_file_for_regenie.R"
+
 
 rule cleaned_data:
     input:
