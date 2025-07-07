@@ -48,6 +48,18 @@ rule all:
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
+#rule cleaned_data:
+#    input:
+#        "/mnt/scratch/agnes/PDB1724_MFR_541_v12.csv",
+#        "/mnt/scratch/agnes/parental_ID_to_PREG_ID.csv",
+#        "/mnt/work/p1724/v12/linkage_Mother_PDB1724.csv",
+#        "/mnt/archive/moba/geno/HDGB-MoBaGenetics/2024.12.03/moba_genotypes_2024.12.03_common.psam"
+#    output:
+#        "results/phenotype/filtered_pregnancies_{parity}.csv",
+#        "results/phenotype/IDs_extract_{parity}.txt"
+#    script:
+#        "scripts/phenotype_stat.R"
+
 rule cleaned_data:
     input:
         "/mnt/scratch/agnes/PDB1724_MFR_541_v12.csv",
@@ -57,8 +69,12 @@ rule cleaned_data:
     output:
         "results/phenotype/filtered_pregnancies_{parity}.csv",
         "results/phenotype/IDs_extract_{parity}.txt"
-    script:
-        "scripts/phenotype_stat.R"
+    params:
+        allowed = ["nulliparous", "multiparous"]
+    run:
+        if wildcards.parity not in params.allowed:
+            raise ValueError(f"cleaned_data: unsupported parity '{wildcards.parity}'")
+        script("scripts/phenotype_stat.R")
 
 # rule to perform SNP-level and sample-level quality control on genotype data
 rule snp_qc:
