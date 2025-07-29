@@ -42,6 +42,8 @@ rule all:
         "results/summary/ipi_hist_pval_logscale.png",
         "results/summary/ipi_ecdf_pval.png",
         "results/summary/ipi_lambda_by_mafbin.png"
+        "results/summary/ipi_interaction_plots.pdf",
+        "results/summary/ipi_interaction_results.csv"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -438,6 +440,16 @@ rule gxe_miscarriage_summary_maf05:
     script:
         "scripts/gxe_miscarriage.R"
 
+
+# rule ipi interaction lm summary
+rule ipi_lm:
+    input:
+        "results/singel-variants/final-SNP-pheno-multiparous.txt"
+    output:
+        pdf = "results/summary/ipi_interaction_plots.pdf",
+        csv = "results/summary/ipi_interaction_results.csv"
+    script:
+        "scripts/ipi_snp_lm.R"
 
 
 
