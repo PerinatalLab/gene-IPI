@@ -207,4 +207,6 @@ print(p)
 #ggsave("results/summary/miscarriage_manhattan_plot_top5.png", plot = p,
 #       width = 10, height = 5, dpi = 300)
 
+fwrite(interaction_results, file = "results/summary/miscarriage_interaction_results.csv")
+
 dev.off()
