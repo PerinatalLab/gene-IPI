@@ -41,11 +41,18 @@ rule all:
         "results/summary/ipi_hist_log10p.png",
         "results/summary/ipi_hist_pval_logscale.png",
         "results/summary/ipi_ecdf_pval.png",
-        "results/summary/ipi_lambda_by_mafbin.png"
+        "results/summary/ipi_lambda_by_mafbin.png",
         "results/summary/ipi_interaction_plots.pdf",
         "results/summary/ipi_interaction_results.csv",
-        "results/summary/miscarriage_interaction_plots.pdf"
-
+        "results/summary/miscarriage_interaction_plots.pdf",
+        "results/summary/miscarriage_interaction_results.csv",
+        "results/summary/ipi_manhattan_plot.pdf",
+        "results/summary/miscarriage_manhattan_plot.pdf",
+        # files from modelAB rule
+        "results/summary/ipi_stratification_plots.pdf",
+        "results/summary/ipi_stratification_slopes.csv",
+        "results/summary/gestation_stats_strategyA.csv",
+        "results/summary/gestation_stats_strategyB.csv"
 
 # rule to clean phenotype data and create ID lists for genotype filtering
 rule cleaned_data:
@@ -458,9 +465,43 @@ rule miscarriage_lm:
     input:
         "results/singel-variants/final-SNP-pheno-nulliparous.txt"
     output:
-        pdf = "results/summary/miscarriage_interaction_plots.pdf"
+        pdf = "results/summary/miscarriage_interaction_plots.pdf",
+        csv = "results/summary/miscarriage_interaction_results.csv"
     script:
         "scripts/miscarriage_snp_lm.R"
+
+
+# rule ipi_manhattan
+rule ipi_manhattan:
+    input:
+        "results/gwas/regenie/gxe_ipi_gd_gw_SVLEN_UL_DG.regenie"
+    output:
+        "results/summary/ipi_manhattan_plot.pdf"
+    script:
+        "scripts/manhattanplot_ipi.R"
+
+# rule miscarriage_manhattan plot
+rule miscarriage_manhattan:
+    input:
+        "results/gwas/regenie/gxe_miscarriage_gd_gw_SVLEN_UL_DG.regenie"
+    output:
+        "results/summary/miscarriage_manhattan_plot.pdf"
+    script:
+        "scripts/manhattanplot_miscarriage.R"
+
+# rule model A B
+rule ipi_modelAB:
+    input:
+        nulli = "results/final_phenotype/pgs_covariates_nulliparous.txt",
+        multi = "results/final_phenotype/IPI_pgs_covariates_multiparous.txt"
+    output:
+        pdf = "results/summary/ipi_stratification_plots.pdf",
+        slopes = "results/summary/ipi_stratification_slopes.csv",
+        stats_A = "results/summary/gestation_stats_strategyA.csv",
+        stats_B = "results/summary/gestation_stats_strategyB.csv"
+    script:
+        "scripts/modelAB.R"
+       
 
 # this sends a message to Agnes:: did she save the world or not?
 onsuccess:
