@@ -43,7 +43,8 @@ rule all:
         "results/summary/ipi_ecdf_pval.png",
         "results/summary/ipi_lambda_by_mafbin.png"
         "results/summary/ipi_interaction_plots.pdf",
-        "results/summary/ipi_interaction_results.csv"
+        "results/summary/ipi_interaction_results.csv",
+        "results/summary/miscarriage_interaction_plots.pdf"
 
 
 # rule to clean phenotype data and create ID lists for genotype filtering
@@ -452,6 +453,14 @@ rule ipi_lm:
         "scripts/ipi_snp_lm.R"
 
 
+# rule miscarriage interaction lm summary
+rule miscarriage_lm:
+    input:
+        "results/singel-variants/final-SNP-pheno-nulliparous.txt"
+    output:
+        pdf = "results/summary/miscarriage_interaction_plots.pdf"
+    script:
+        "scripts/miscarriage_snp_lm.R"
 
 # this sends a message to Agnes:: did she save the world or not?
 onsuccess:
