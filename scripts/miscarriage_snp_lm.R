@@ -1,8 +1,10 @@
-# miscarriage × SNP GxE interaction with plots -- by additive model
+# miscarriage × SNP GxE interaction with plots -- by additive model === plots --> 1 PDF file
 library(data.table)
 library(dplyr)
 library(ggplot2)
 library(broom)
+
+pdf("results/summary/miscarriage_interaction_plots.pdf", width = 8, height = 6)
 
 setwd("~/scratch/agnes/gene-IPI")
 
@@ -151,3 +153,58 @@ p_summary <- ggplot(summary_table, aes(x = Group, y = Effect, fill = Group)) +
   )
 
 print(p_summary)
+
+
+
+
+
+
+df <- interaction_results %>%
+  mutate(
+    CHR = as.integer(gsub("^chr([0-9]+)_.*", "\\1", SNP)),
+    POS = as.integer(gsub("^chr[0-9]+_([0-9]+)_.*", "\\1", SNP)),
+    ID = SNP,
+    LOG10P = -log10(p.value)
+  ) %>%
+  filter(!is.na(LOG10P), !is.na(CHR), !is.na(POS))
+
+df$CHR2 <- ifelse(as.numeric(as.character(df$CHR)) %% 2 == 0, "even", "odd")
+
+df <- df %>%
+  group_by(CHR) %>%
+  summarise(chr_len = max(POS), .groups = "drop") %>%
+  mutate(tot = cumsum(as.numeric(chr_len)) - chr_len) %>%
+  select(CHR, tot) %>%
+  left_join(df, by = "CHR") %>%
+  arrange(CHR, POS) %>%
+  mutate(BPcum = POS + tot)
+
+axis_df <- df %>%
+  group_by(CHR) %>%
+  summarize(center = mean(BPcum), .groups = "drop")
+
+top_snps <- df %>% arrange(desc(LOG10P)) %>% slice_head(n = 5)
+label_df <- top_snps %>% mutate(nudge = seq(0.3, 1.5, by = 0.3)) 
+
+gw_line <- -log10(5e-8)
+
+# Manhattan plot
+p <- ggplot(df, aes(x = BPcum, y = LOG10P, color = CHR2)) +
+  geom_point(size = 0.3) +
+  geom_text(data = label_df,
+            aes(label = ID, y = LOG10P + nudge),
+            color = "black", size = 2.5) +
+  scale_color_manual(values = c("odd" = "gray40", "even" = "gray70")) +
+  scale_x_continuous(breaks = axis_df$center, labels = axis_df$CHR) +
+  geom_hline(yintercept = gw_line, linetype = "dashed", color = "red") +
+  labs(x = "Chromosome", y = expression(-log[10](italic(p))),
+       title = "Manhattan plot – miscarriage × SNP G×E") +
+  theme_minimal(base_size = 10) +
+  theme(legend.position = "none")
+
+print(p)
+
+#ggsave("results/summary/miscarriage_manhattan_plot_top5.png", plot = p,
+#       width = 10, height = 5, dpi = 300)
+
+dev.off()
